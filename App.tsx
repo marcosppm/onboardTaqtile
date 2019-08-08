@@ -37,7 +37,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
     this.state = { email: "", password: "", errorMessage: "", token: "" };
   }
 
-  login(tokenReceived: string): void {
+  login(tokenReceived: any): void {
     let regexEmail: RegExp = /([A-Za-z])+@([A-Za-z])+.com/gm;
     let regexOneCharAndOneDigit: RegExp = /(?=.*?[0-9])(?=.*?[A-Za-z]).+/gm;
     if (!this.state.email) {
@@ -51,14 +51,16 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
     } else if (!regexOneCharAndOneDigit.test(this.state.password)) {
       this.setState({ errorMessage: "A senha deve conter pelo menos um caracter e um dígito" });
     } else {
+      let jsonData: string = JSON.stringify(tokenReceived);
       this.setState({
-        token: tokenReceived, 
-        errorMessage: "Token: " + tokenReceived });
+        token: jsonData,
+        errorMessage: "Token: " + jsonData });
     }
   }
 
   render() {
     return (
+      <ApolloProvider client={client}>
       <Mutation mutation={gql`
           mutation {
             Login(data:{email:"admin@taqtile.com", password:"1234qwer"}) {
@@ -66,7 +68,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
             }
           }
       `}>
-        {({ loading, error, data }) => {
+        {(mutateFunction, {data}) => {
           return (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <View style={{ marginBottom: 15 }}>
@@ -102,7 +104,10 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
               <Button
                 title="Entrar"
                 color="#9400D3"
-                onPress={() => this.login( data )}
+                onPress={() => {
+                  mutateFunction();
+                  this.login( data );
+                }}
               />
             </View>
 
@@ -112,6 +117,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
           </View>);
         }}
       </Mutation>
+      </ApolloProvider>
     );
   }
 }
