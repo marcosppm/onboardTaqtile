@@ -9,8 +9,6 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import { createHttpLink } from 'apollo-link-http';
 import gql from "graphql-tag";
 import { Mutation } from 'react-apollo';
-import { on } from 'cluster';
-import { onError } from 'apollo-link-error';
 
 export interface HelloWorldAppProps { }
 
@@ -108,24 +106,26 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                 <Button
                   title="Entrar"
                   color="#9400D3"
-                  onPress={() => {
-                    alert(loading + "\r\n" + error + "\r\n" + data + "\r\n" + this.state.email + "\r\n" + this.state.password)
+                  onPress={async () => {
+                    
                     if (!this.formCorrectlyFilled()) {
                       return;
-                    } else if (loading) {
-                      this.setState({ errorMessage: "Esperando o servidor responder..." });
-                    } else if (error) {
-                      this.setState({ errorMessage: "E-mail ou senha incorreto" });
                     } else {
-                      mutateFunction()
-                        .then(() => {
-                          if (!data) return; // tirar essa linha
-                          let token: string = JSON.parse(JSON.stringify(data)).Login.token;
-                          this.setState({
-                            token: token,
-                            errorMessage: token
-                          });
+                      await mutateFunction();
+                      alert(loading + "\r\n" + error + "\r\n" + data + "\r\n" + this.state.email + "\r\n" + this.state.password);
+
+                      if (loading) {
+                        this.setState({ errorMessage: "Esperando o servidor responder..." });
+                      } else if (error) {
+                        this.setState({ errorMessage: "E-mail ou senha incorreto" });
+                      } else {
+                        if (!data) return; // tirar essa linha
+                        let token: string = JSON.parse(JSON.stringify(data)).Login.token;
+                        this.setState({
+                          token: token,
+                          errorMessage: token
                         });
+                      }
                     }
                   }}
                 />
