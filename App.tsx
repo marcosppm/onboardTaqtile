@@ -37,86 +37,102 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
     this.state = { email: "", password: "", errorMessage: "", token: "" };
   }
 
-  login(tokenReceived: any): void {
+  formCorrectlyFilled(): boolean {
+    let correctlyFilled = true;
     let regexEmail: RegExp = /([A-Za-z])+@([A-Za-z])+.com/gm;
     let regexOneCharAndOneDigit: RegExp = /(?=.*?[0-9])(?=.*?[A-Za-z]).+/gm;
     if (!this.state.email) {
       this.setState({ errorMessage: "E-mail obrigatório." });
+      correctlyFilled = false;
     } else if (!regexEmail.test(this.state.email)) {
       this.setState({ errorMessage: "Formato do e-mail deve ser: ###@###.com" });
+      correctlyFilled = false;
     } else if (!this.state.password) {
       this.setState({ errorMessage: "Senha obrigatória." });
+      correctlyFilled = false;
     } else if (this.state.password.length < 7) {
       this.setState({ errorMessage: "A senha deve ter pelo menos 7 caracteres." });
+      correctlyFilled = false;
     } else if (!regexOneCharAndOneDigit.test(this.state.password)) {
       this.setState({ errorMessage: "A senha deve conter pelo menos um caracter e um dígito" });
-    } else {
-      let jsonData: string = JSON.stringify(tokenReceived);
-      this.setState({
-        token: jsonData,
-        errorMessage: "Token: " + jsonData });
-    }
+      correctlyFilled = false;
+    } 
+    return correctlyFilled;
   }
 
   render() {
     return (
       <ApolloProvider client={client}>
-      <Mutation mutation={gql`
-          mutation {
-            Login(data:{email:"admin@taqtile.com", password:"1234qwer"}) {
-              token
+        <Mutation mutation={gql`
+            mutation getLogin {
+              Login(data:{email:"${this.state.email}", password:"${this.state.password}"}) {
+                token
+              }
             }
-          }
-      `}>
-        {(mutateFunction, {data}) => {
-          return (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{ marginBottom: 15 }}>
-              <Text style={{ fontSize: 33, fontWeight: 'bold' }}>
-                Bem-vindo(a) à Taqtile!
-              </Text>
-            </View>
+        `}>
+          {(mutateFunction, {data, error, loading}) => {
+            return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <View style={{ marginBottom: 15 }}>
+                <Text style={{ fontSize: 33, fontWeight: 'bold' }}>
+                  Bem-vindo(a) à Taqtile!
+                </Text>
+              </View>
 
-            <View style={{ alignItems: 'baseline' }}>
-              <Text style={{ fontSize: 15, marginBottom: 5 }}>E-mail:</Text>
+              <View style={{ alignItems: 'baseline' }}>
+                <Text style={{ fontSize: 15, marginBottom: 5 }}>E-mail:</Text>
 
-              <TextInput
-                style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 15 }}
-                autoCompleteType='email'
-                autoCapitalize='none'
-                onChangeText={(inputText) => this.setState({ email: inputText })}
-              />
+                <TextInput
+                  style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 15 }}
+                  autoCompleteType='email'
+                  autoCapitalize='none'
+                  onChangeText={(inputText) => this.setState({ email: inputText })}
+                />
 
-              <Text style={{ fontSize: 15, marginBottom: 5 }}>Senha:</Text>
+                <Text style={{ fontSize: 15, marginBottom: 5 }}>Senha:</Text>
 
-              <TextInput
-                style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 15 }}
-                autoCompleteType='password'
-                autoCapitalize='none'
-                underlineColorAndroid='transparent'
-                secureTextEntry={true}
-                onChangeText={(inputText) => this.setState({ password: inputText })}
-              />
+                <TextInput
+                  style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 15 }}
+                  autoCompleteType='password'
+                  autoCapitalize='none'
+                  underlineColorAndroid='transparent'
+                  secureTextEntry={true}
+                  onChangeText={(inputText) => this.setState({ password: inputText })}
+                />
 
-            </View>
+              </View>
 
-            <View style={{ marginBottom: 15 }}>
-              <Button
-                title="Entrar"
-                color="#9400D3"
-                onPress={() => {
-                  mutateFunction();
-                  this.login( data );
-                }}
-              />
-            </View>
+              <View style={{ marginBottom: 15 }}>
+                <Button
+                  title="Entrar"
+                  color="#9400D3"
+                  onPress={() => {
+                    alert(loading + " " + error + " " + data)
+                    if (!this.formCorrectlyFilled()) {
+                      return;
+                    } else if (loading) {
+                      this.setState({ errorMessage: "Esperando o servidor responder..." });
+                    } if (error) {
+                      this.setState({ errorMessage: "E-mail ou senha incorreto" });
+                    } else {
+                      mutateFunction();
+                      if (!data) return;
+                      let token: string = JSON.parse(JSON.stringify(data)).Login.token;
+                      this.setState({
+                        token: token,
+                        errorMessage: token
+                      });
+                    }
+                  }}
+                />
+              </View>
 
-            <View style={{ alignItems: 'baseline' }}>
-              <Text style={{ fontSize: 15, color: "#FF0000" }}>{this.state.errorMessage}</Text>
-            </View>
-          </View>);
-        }}
-      </Mutation>
+              <View style={{ alignItems: 'baseline' }}>
+                <Text style={{ fontSize: 15, color: "#FF0000" }}>{this.state.errorMessage}</Text>
+              </View>
+            </View>);
+          }}
+        </Mutation>
       </ApolloProvider>
     );
   }
