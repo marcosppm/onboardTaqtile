@@ -128,7 +128,8 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                         if (loading) {
                           this.setState({ errorMessage: "Esperando o servidor responder..." });
                         } else if (error) {
-                          this.setState({ errorMessage: "E-mail ou senha incorreto" });
+                          let message =JSON.parse(JSON.stringify(error)).graphQLErrors[0].message;
+                          this.setState({ errorMessage: message });
                         }
                       }
                     }
