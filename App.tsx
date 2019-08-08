@@ -9,6 +9,8 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import { createHttpLink } from 'apollo-link-http';
 import gql from "graphql-tag";
 import { Mutation } from 'react-apollo';
+import { on } from 'cluster';
+import { onError } from 'apollo-link-error';
 
 export interface HelloWorldAppProps { }
 
@@ -63,7 +65,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
   render() {
     return (
       <ApolloProvider client={client}>
-        <Mutation mutation={gql`
+        <Mutation fetchPolicy='no-cache' mutation={gql`
             mutation getLogin {
               Login(data:{email:"${this.state.email}", password:"${this.state.password}"}) {
                 token
@@ -107,21 +109,23 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                   title="Entrar"
                   color="#9400D3"
                   onPress={() => {
-                    alert(loading + " " + error + " " + data)
+                    alert(loading + "\r\n" + error + "\r\n" + data + "\r\n" + this.state.email + "\r\n" + this.state.password)
                     if (!this.formCorrectlyFilled()) {
                       return;
                     } else if (loading) {
                       this.setState({ errorMessage: "Esperando o servidor responder..." });
-                    } if (error) {
+                    } else if (error) {
                       this.setState({ errorMessage: "E-mail ou senha incorreto" });
                     } else {
-                      mutateFunction();
-                      if (!data) return;
-                      let token: string = JSON.parse(JSON.stringify(data)).Login.token;
-                      this.setState({
-                        token: token,
-                        errorMessage: token
-                      });
+                      mutateFunction()
+                        .then(() => {
+                          if (!data) return; // tirar essa linha
+                          let token: string = JSON.parse(JSON.stringify(data)).Login.token;
+                          this.setState({
+                            token: token,
+                            errorMessage: token
+                          });
+                        });
                     }
                   }}
                 />
