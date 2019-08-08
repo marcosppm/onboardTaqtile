@@ -4,7 +4,7 @@ import { Text, View, TextInput, Button } from 'react-native';
 
 import { AppRegistry } from 'react-native';
 import { ApolloClient } from 'apollo-client';
-import { ApolloProvider } from 'react-apollo';
+import { ApolloProvider, MutationFunction } from 'react-apollo';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { createHttpLink } from 'apollo-link-http';
 import gql from "graphql-tag";
@@ -63,14 +63,15 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
   render() {
     return (
       <ApolloProvider client={client}>
-        <Mutation fetchPolicy='no-cache' mutation={gql`
+        <Mutation
+          mutation={gql`
             mutation getLogin {
               Login(data:{email:"${this.state.email}", password:"${this.state.password}"}) {
                 token
               }
-            }
-        `}>
-          {(mutateFunction, {data, error, loading}) => {
+            }`}
+        >
+          {(mutateFunction: MutationFunction<any, { email: string, password: string }>, {data, error, loading}) => {
             return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
               <View style={{ marginBottom: 15 }}>
@@ -111,20 +112,24 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                     if (!this.formCorrectlyFilled()) {
                       return;
                     } else {
-                      await mutateFunction();
-                      alert(loading + "\r\n" + error + "\r\n" + data + "\r\n" + this.state.email + "\r\n" + this.state.password);
-
-                      if (loading) {
-                        this.setState({ errorMessage: "Esperando o servidor responder..." });
-                      } else if (error) {
-                        this.setState({ errorMessage: "E-mail ou senha incorreto" });
-                      } else {
-                        if (!data) return; // tirar essa linha
+                      try {
+                        await mutateFunction({ variables: { 
+                          email: this.state.email,
+                          password: this.state.password
+                        } });
+                        
                         let token: string = JSON.parse(JSON.stringify(data)).Login.token;
                         this.setState({
                           token: token,
                           errorMessage: token
                         });
+                        alert(loading + "\r\n" + error + "\r\n" + data + "\r\n" + this.state.email + "\r\n" + this.state.password);
+                      } catch (exception) {
+                        if (loading) {
+                          this.setState({ errorMessage: "Esperando o servidor responder..." });
+                        } else if (error) {
+                          this.setState({ errorMessage: "E-mail ou senha incorreto" });
+                        }
                       }
                     }
                   }}
