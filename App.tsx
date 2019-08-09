@@ -10,7 +10,9 @@ import { createHttpLink } from 'apollo-link-http';
 import gql from "graphql-tag";
 import { Mutation } from 'react-apollo';
 
-export interface HelloWorldAppProps { }
+export interface HelloWorldAppProps { 
+  navigation?: any
+}
 
 interface HelloWorldAppState {
   email?: string
@@ -32,6 +34,10 @@ const ApolloApp = AppComponent => (
 AppRegistry.registerComponent('HelloWorldApp', () => ApolloApp);
 
 export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWorldAppState> {
+  static navigationOptions = {
+    title : 'Login Screen',
+  }
+
   constructor(props: HelloWorldAppProps) {
     super(props);
     this.state = { email: "", password: "", errorMessage: "", token: "" };
@@ -113,6 +119,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                       return;
                     } else {
                       try {
+                        alert(loading + "\r\n" + error + "\r\n" + data + "\r\n" + this.state.email + "\r\n" + this.state.password);
                         await mutateFunction({ variables: { 
                           email: this.state.email,
                           password: this.state.password
@@ -123,12 +130,12 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                           token: token,
                           errorMessage: token
                         });
-                        alert(loading + "\r\n" + error + "\r\n" + data + "\r\n" + this.state.email + "\r\n" + this.state.password);
+                        this.props.navigation.navigation('UserList');
                       } catch (exception) {
                         if (loading) {
                           this.setState({ errorMessage: "Esperando o servidor responder..." });
                         } else if (error) {
-                          let message =JSON.parse(JSON.stringify(error)).graphQLErrors[0].message;
+                          let message = JSON.parse(JSON.stringify(error)).graphQLErrors[0].message;
                           this.setState({ errorMessage: message });
                         }
                       }
