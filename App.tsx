@@ -10,13 +10,13 @@ import { createHttpLink } from 'apollo-link-http';
 import gql from "graphql-tag";
 import { Mutation } from 'react-apollo';
 
+import AppContainer from './index'
+
 import { 
   NavigationParams, 
   NavigationScreenProp,
-  NavigationState, createStackNavigator,
-  createAppContainer
+  NavigationState
 } from 'react-navigation';
-import UserList from "./UserListScreen";
 
 export interface HelloWorldAppProps { 
   navigation?: NavigationScreenProp<NavigationState, NavigationParams>;
@@ -39,7 +39,7 @@ const ApolloApp = AppComponent => (
     <AppContainer />
   </ApolloProvider>
 );
-AppRegistry.registerComponent('AppContainer', () => ApolloApp);
+AppRegistry.registerComponent('HelloWorldApp', () => ApolloApp);
 
 export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWorldAppState> {
   static navigationOptions = {
@@ -127,7 +127,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                       return;
                     } else {
                       try {
-                        alert(loading + "\r\n" + error + "\r\n" + data + "\r\n" + this.state.email + "\r\n" + this.state.password);
+                        // alert(loading + "\r\n" + error + "\r\n" + data + "\r\n" + this.state.email + "\r\n" + this.state.password);
                         await mutateFunction({ variables: { 
                           email: this.state.email,
                           password: this.state.password
@@ -163,12 +163,3 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
   }
 }
 
-const AppNavigator = createStackNavigator({
-  Home: HelloWorldApp,
-  UserList: UserList,
-},
-{
-  initialRouteName: 'Home',
-}
-);
-const AppContainer = createAppContainer(AppNavigator);

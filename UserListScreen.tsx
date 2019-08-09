@@ -4,7 +4,7 @@ import { Text } from 'react-native';
 
 export default class UserList extends Component {
     static navigationOptions = {
-        title : 'Login Screen',
+        title : 'Lista do Usuário'
     }
 
     render() {
@@ -12,5 +12,4 @@ export default class UserList extends Component {
             <Text>Segunda tela</Text>
         );
     }
-
 }
