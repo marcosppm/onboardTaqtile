@@ -12,11 +12,14 @@ import { Mutation } from 'react-apollo';
 
 import AppContainer from './index'
 
+import { AsyncStorage } from 'react-native';
+
 import { 
   NavigationParams, 
   NavigationScreenProp,
   NavigationState
 } from 'react-navigation';
+import { bool } from 'prop-types';
 
 export interface HelloWorldAppProps { 
   navigation?: NavigationScreenProp<NavigationState, NavigationParams>;
@@ -51,7 +54,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
     this.state = { email: "", password: "", errorMessage: "", token: "" };
   }
 
-  formCorrectlyFilled(): boolean {
+  private formCorrectlyFilled(): boolean {
     let correctlyFilled = true;
     let regexEmail: RegExp = /([A-Za-z])+@([A-Za-z])+.com/gm;
     let regexOneCharAndOneDigit: RegExp = /(?=.*?[0-9])(?=.*?[A-Za-z]).+/gm;
@@ -72,6 +75,17 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
       correctlyFilled = false;
     } 
     return correctlyFilled;
+  }
+
+  private async storeLocally(token: string): Promise<Boolean> {
+    let tokenSaved: boolean = true;
+    try {
+      await AsyncStorage.setItem('@Token:key', token);
+    } catch (error) {
+      alert("Token não pôde ser salvo localmente.");
+      tokenSaved = false;
+    }
+    return tokenSaved;
   }
 
   render() {
@@ -138,7 +152,11 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                           token: token,
                           errorMessage: token
                         });
-                        this.props.navigation.navigate('UserList');
+                        let tokenSaved = await this.storeLocally(token);
+                        if (tokenSaved) {
+                          this.props.navigation.navigate('UserList');
+                        }
+                        
                       } catch (exception) {
                         if (loading) {
                           this.setState({ errorMessage: "Esperando o servidor responder..." });
