@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import { AppRegistry } from 'react-native';
 import App from './App';
 import {name as appName} from './app.json';
-import UserList from './UserList';
+import UserList from './UserListScreen';
 import { createStackNavigator } from 'react-navigation';
 
 export default class reactNavigationSample extends Component {

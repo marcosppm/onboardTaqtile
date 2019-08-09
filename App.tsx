@@ -10,8 +10,16 @@ import { createHttpLink } from 'apollo-link-http';
 import gql from "graphql-tag";
 import { Mutation } from 'react-apollo';
 
+import { 
+  NavigationParams, 
+  NavigationScreenProp,
+  NavigationState, createStackNavigator,
+  createAppContainer
+} from 'react-navigation';
+import UserList from "./UserListScreen";
+
 export interface HelloWorldAppProps { 
-  navigation?: any
+  navigation?: NavigationScreenProp<NavigationState, NavigationParams>;
 }
 
 interface HelloWorldAppState {
@@ -28,10 +36,10 @@ const client = new ApolloClient({
 
 const ApolloApp = AppComponent => (
   <ApolloProvider client={client}>
-    <HelloWorldApp />
+    <AppContainer />
   </ApolloProvider>
 );
-AppRegistry.registerComponent('HelloWorldApp', () => ApolloApp);
+AppRegistry.registerComponent('AppContainer', () => ApolloApp);
 
 export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWorldAppState> {
   static navigationOptions = {
@@ -130,7 +138,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                           token: token,
                           errorMessage: token
                         });
-                        this.props.navigation.navigation('UserList');
+                        this.props.navigation.navigate('UserList');
                       } catch (exception) {
                         if (loading) {
                           this.setState({ errorMessage: "Esperando o servidor responder..." });
@@ -154,3 +162,13 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
     );
   }
 }
+
+const AppNavigator = createStackNavigator({
+  Home: HelloWorldApp,
+  UserList: UserList,
+},
+{
+  initialRouteName: 'Home',
+}
+);
+const AppContainer = createAppContainer(AppNavigator);
