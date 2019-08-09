@@ -150,7 +150,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                         let token: string = JSON.parse(JSON.stringify(data)).Login.token;
                         this.setState({
                           token: token,
-                          errorMessage: token
+                          errorMessage: ""
                         });
                         let tokenSaved = await this.storeLocally(token);
                         if (tokenSaved) {
