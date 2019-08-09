@@ -1,6 +1,6 @@
 import React from 'react'
 import { Component } from 'react';
-import { Text, View, TextInput, Button } from 'react-native';
+import { Text, View, TextInput, Button, ActivityIndicator } from 'react-native';
 
 import { AppRegistry } from 'react-native';
 import { ApolloClient } from 'apollo-client';
@@ -14,11 +14,12 @@ import AppContainer from './index'
 
 import { AsyncStorage } from 'react-native';
 
-import { 
+import {
   NavigationParams, 
   NavigationScreenProp,
   NavigationState
 } from 'react-navigation';
+import ActivityIndicatorToggle from './ActivityIndicatorToggleComponent';
 
 export interface HelloWorldAppProps { 
   navigation?: NavigationScreenProp<NavigationState, NavigationParams>;
@@ -53,7 +54,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
   }
 
   private formCorrectlyFilled(): boolean {
-    let correctlyFilled = true;
+    let correctlyFilled: boolean = true;
     let regexEmail: RegExp = /([A-Za-z])+@([A-Za-z])+.com/gm;
     let regexOneCharAndOneDigit: RegExp = /(?=.*?[0-9])(?=.*?[A-Za-z]).+/gm;
     if (!this.state.email) {
@@ -180,6 +181,8 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
               <View style={{ alignItems: 'baseline' }}>
                 <Text style={{ fontSize: 15, color: "#FF0000" }}>{this.state.errorMessage}</Text>
               </View>
+
+              <ActivityIndicatorToggle />
             </View>);
           }}
         </Mutation>
