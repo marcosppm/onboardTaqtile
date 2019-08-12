@@ -14,6 +14,11 @@ import AppContainer from './index'
 
 import { AsyncStorage } from 'react-native';
 
+export interface Global {
+  token: string
+}
+declare var global: Global;
+
 import { 
   NavigationParams, 
   NavigationScreenProp,
@@ -28,7 +33,6 @@ interface HelloWorldAppState {
   email?: string
   password?: string
   errorMessage?: string
-  token?: string
 }
 
 const client = new ApolloClient({
@@ -50,7 +54,8 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
 
   constructor(props: HelloWorldAppProps) {
     super(props);
-    this.state = { email: "", password: "", errorMessage: "", token: "" };
+    this.state = { email: "", password: "", errorMessage: "" };
+    global.token = "";
   }
 
   private formCorrectlyFilled(): boolean {
@@ -88,7 +93,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
     return tokenSaved;
   }
 
-  private async login(mutateFunction, loading, error, data): Promise<String>  {
+  private async login(mutateFunction, loading, error, data): Promise<string>  {
     if (this.formCorrectlyFilled()) {
       try {
         await mutateFunction({ variables: { 
@@ -98,7 +103,6 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
         
         let token: string = JSON.parse(JSON.stringify(data)).Login.token;
         this.setState({
-          token: token,
           errorMessage: ""
         });
         let tokenSaved = await this.storeLocally(token);
@@ -166,8 +170,9 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                 <Button
                   title="Entrar"
                   color="#9400D3"
-                  onPress={() => {
-                    this.login(mutateFunction, loading, error, data);
+                  onPress={async () => {
+                    global.token = await this.login(mutateFunction, loading, error, data);
+                    alert(global.token);
                   }}
                 />
               </View>
@@ -182,4 +187,3 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
     );
   }
 }
-
