@@ -172,8 +172,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                 <Button
                   title="Entrar"
                   color="#9400D3"
-                  onPress={async () => {
-                    console.log(this.state.email + " " + this.state.password);
+                  onPress={() => {
                     this.login(mutateFunction);
                   }}
                 />
