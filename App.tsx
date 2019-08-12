@@ -4,7 +4,7 @@ import { Text, View, TextInput, Button } from 'react-native';
 
 import { AppRegistry } from 'react-native';
 import { ApolloClient } from 'apollo-client';
-import { ApolloProvider, MutationFunction } from 'react-apollo';
+import { ApolloProvider, MutationFunction, MutationFetchResult } from 'react-apollo';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { createHttpLink } from 'apollo-link-http';
 import gql from "graphql-tag";
@@ -90,22 +90,21 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
   private async login(mutateFunction): Promise<boolean>  {
     if (this.formCorrectlyFilled()) {
       try {
-        let result: any = await mutateFunction({ variables: { 
+        let result = await mutateFunction({ variables: { 
           email: this.state.email,
           password: this.state.password
         } });
-        
+
         if (result.loading) {
           this.setState({ errorMessage: "Esperando o servidor responder..." });
           return false;
-          
         } else if (result.error) {
-          let message = JSON.parse(JSON.stringify(result.error)).graphQLErrors[0].message;
+          let message = result.error.graphQLErrors[0].message;
           this.setState({ errorMessage: message });
           return false;
 
         } else if (result.data) {
-          let token: string = JSON.parse(JSON.stringify(result.data)).Login.token; 
+          let token: string = result;
           this.setState({
             errorMessage: ""
           });
@@ -117,7 +116,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
           return true;
         }
       } catch (error) {
-        let message = JSON.parse(JSON.stringify(error)).graphQLErrors[0].message;
+        let message = error.graphQLErrors[0].message;
         this.setState({ errorMessage: message });
         return false;
       }
@@ -136,7 +135,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
             }`}
             variables={{ input: {email: this.state.email, password: this.state.password} }}
         >
-          {(mutateFunction: MutationFunction<any, { email: string, password: string }>) => {
+          {(mutateFunction: MutationFunction<{ Login: { token: string } }, { email: string, password: string }>) => {
             return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
               <View style={{ marginBottom: 15 }}>
