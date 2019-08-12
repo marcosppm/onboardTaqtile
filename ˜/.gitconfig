@@ -1,0 +1,84 @@
+[alias]
+  branch-name = "!git rev-parse --abbrev-ref HEAD"
+  com = commit -m
+  coa = commit --amend
+  ck = checkout
+  po = push origin
+  pot = "!git push origin $(git branch-name)"
+  ph = push heroku
+  phm = push heroku master
+  plod = pull origin develop
+  plot = "!git pull origin $(git branch-name)"
+  mg = merge --no-ff
+  st = status -sb
+  br = ls-remote
+  lc = ls-files -u
+  ls = ls -la
+  a = add -A :/
+  ap = add -p
+  st = status
+  fo = fetch origin
+  fpo = fetch -p origin
+  fp = fetch -p
+  cl = clean -fdx
+  sh = stash
+  shl = stash list
+  shp = stash pop
+  shd = stash drop
+  df = diff --color --color-words --abbrev
+  ckb = checkout -b
+  h = log --pretty=format:'%Creset%C(red bold)[%ad] %C(blue bold)%h %Creset%C(magenta bold)%d %Creset%s %C(green bold)(%an)%Creset' --graph --abbrev-commit --date=short
+  ha = log --pretty=format:'%Creset%C(red bold)[%ad] %C(blue bold)%h %Creset%C(magenta bold)%d %Creset%s %C(green bold)(%an)%Creset' --graph --all --abbrev-commit --date=short
+
+  # branch
+  b = branch
+  bm = branch -m
+  bd = branch -d
+  bdf = branch -D
+  bdlo = "!f() { git branch -D $1; git push origin --delete $1; }; f"
+
+  # rebasing
+  rb = rebase
+  rbc = rebase --continue
+  rba = rebase --abort
+
+  # alias bellow from http://durdn.com/blog/2012/11/22/must-have-git-aliases-advanced-examples/
+  logk = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+  logf = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
+  lg = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
+  logm = log --merges --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
+  dl = "!git logf -1"
+  alias = "!git config -l | grep alias | cut -c 7-"
+  switch = !legit switch \"$@\"
+  branches = !legit branches
+  sprout = !legit sprout \"$@\"
+  unpublish = !legit unpublish \"$@\"
+  harvest = !legit harvest \"$@\"
+  sync = !legit sync \"$@\"
+  publish = !legit publish \"$@\"
+  graft = !legit graft \"$@\"
+
+  # alias bellow from http://blog.apiaxle.com/post/handy-git-tips-to-stop-you-getting-fired/
+  assume   = update-index --assume-unchanged
+  unassume = update-index --no-assume-unchanged
+  assumed  = "!git ls-files -v | grep ^h | cut -c 3-"
+  snapshot = !git stash save "snapshot: $(date)" && git stash apply "stash@{0}"
+  ours   = "!f() { git checkout --ours $@ && git add $@; }; f"
+  theirs = "!f() { git checkout --theirs $@ && git add $@; }; f"
+
+[commit]
+	gpgsign = true
+[user]
+	signingkey = C439E9D91CDCAD7C
+	email = marcos.moretti@taqtile.com
+	name = Marcos Paulo
+[core]
+	excludesfile = /Users/taqtile/.gitignore_global
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
+[mergetool "sourcetree"]
+	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
+[credential]
+	helper = osxkeychain

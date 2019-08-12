@@ -88,7 +88,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
     return tokenSaved;
   }
 
-  private async login(mutateFunction): Promise<boolean>  {
+  private async login(mutateFunction, loading): Promise<boolean>  {
     if (this.formCorrectlyFilled()) {
       try {
         let result = await mutateFunction({ variables: { 
@@ -96,9 +96,10 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
           password: this.state.password
         } });
 
-        if (result.loading) {
+        if (loading) {
           this.setState({ errorMessage: "Esperando o servidor responder..." });
           return false;
+
         } else if (result.error) {
           let message = result.error.graphQLErrors[0].message;
           this.setState({ errorMessage: message });
@@ -136,7 +137,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
             }`}
             variables={{ input: {email: this.state.email, password: this.state.password} }}
         >
-          {(mutateFunction: MutationFunction<{ Login: { token: string } }, { email: string, password: string }>) => {
+          {(mutateFunction: MutationFunction<{ Login: { token: string } }, { email: string, password: string }>, {loading}) => {
             return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
               <View style={{ marginBottom: 15 }}>
@@ -173,7 +174,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                   title="Entrar"
                   color="#9400D3"
                   onPress={() => {
-                    this.login(mutateFunction);
+                    this.login(mutateFunction, loading);
                   }}
                   disabled={ loading }
                 />
@@ -183,7 +184,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                 <Text style={{ fontSize: 15, color: "#FF0000" }}>{this.state.errorMessage}</Text>
               </View>
 
-              <ActivityIndicatorToggle loading={loading} />
+              <ActivityIndicatorToggle loading={ loading } />
             </View>);
           }}
         </Mutation>
