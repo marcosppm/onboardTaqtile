@@ -14,11 +14,6 @@ import AppContainer from './index'
 
 import { AsyncStorage } from 'react-native';
 
-export interface Global {
-  token: string
-}
-declare var global: Global;
-
 import { 
   NavigationParams, 
   NavigationScreenProp,
@@ -55,7 +50,6 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
   constructor(props: HelloWorldAppProps) {
     super(props);
     this.state = { email: "", password: "", errorMessage: "" };
-    global.token = "";
   }
 
   private formCorrectlyFilled(): boolean {
@@ -93,32 +87,39 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
     return tokenSaved;
   }
 
-  private async login(mutateFunction, loading, error, data): Promise<string>  {
+  private async login(mutateFunction): Promise<boolean>  {
     if (this.formCorrectlyFilled()) {
       try {
-        await mutateFunction({ variables: { 
+        let result: any = await mutateFunction({ variables: { 
           email: this.state.email,
           password: this.state.password
         } });
         
-        let token: string = JSON.parse(JSON.stringify(data)).Login.token;
-        this.setState({
-          errorMessage: ""
-        });
-        let tokenSaved = await this.storeLocally(token);
-        if (tokenSaved) {
-          this.props.navigation.navigate('UserList');
-        }
-        return token;
-        
-      } catch (exception) {
-        if (loading) {
+        if (result.loading) {
           this.setState({ errorMessage: "Esperando o servidor responder..." });
-        } else if (error) {
-          let message = JSON.parse(JSON.stringify(error)).graphQLErrors[0].message;
+          return false;
+          
+        } else if (result.error) {
+          let message = JSON.parse(JSON.stringify(result.error)).graphQLErrors[0].message;
           this.setState({ errorMessage: message });
+          return false;
+
+        } else if (result.data) {
+          let token: string = JSON.parse(JSON.stringify(result.data)).Login.token; 
+          this.setState({
+            errorMessage: ""
+          });
+  
+          let tokenSaved = await this.storeLocally(token);
+          if (tokenSaved) {
+            this.props.navigation.navigate('UserList');
+          }
+          return true;
         }
-        return "";
+      } catch (error) {
+        let message = JSON.parse(JSON.stringify(error)).graphQLErrors[0].message;
+        this.setState({ errorMessage: message });
+        return false;
       }
     }
   }
@@ -135,7 +136,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
             }`}
             variables={{ input: {email: this.state.email, password: this.state.password} }}
         >
-          {(mutateFunction: MutationFunction<any, { email: string, password: string }>, {data, error, loading}) => {
+          {(mutateFunction: MutationFunction<any, { email: string, password: string }>) => {
             return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
               <View style={{ marginBottom: 15 }}>
@@ -172,7 +173,8 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                   title="Entrar"
                   color="#9400D3"
                   onPress={async () => {
-                    global.token = await this.login(mutateFunction, loading, error, data);
+                    console.log(this.state.email + " " + this.state.password);
+                    this.login(mutateFunction);
                   }}
                 />
               </View>
