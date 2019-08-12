@@ -173,7 +173,6 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                   color="#9400D3"
                   onPress={async () => {
                     global.token = await this.login(mutateFunction, loading, error, data);
-                    alert(global.token);
                   }}
                 />
               </View>
