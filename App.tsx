@@ -19,7 +19,6 @@ import {
   NavigationScreenProp,
   NavigationState
 } from 'react-navigation';
-import { bool } from 'prop-types';
 
 export interface HelloWorldAppProps { 
   navigation?: NavigationScreenProp<NavigationState, NavigationParams>;
@@ -82,10 +81,42 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
     try {
       await AsyncStorage.setItem('@Token:key', token);
     } catch (error) {
-      alert("Token não pôde ser salvo localmente.");
+      alert("Erro interno do servidor");
+      console.warn("Token não pôde ser salvo localmente.");
       tokenSaved = false;
     }
     return tokenSaved;
+  }
+
+  private async login(mutateFunction, loading, error, data): Promise<String>  {
+    if (this.formCorrectlyFilled()) {
+      try {
+        await mutateFunction({ variables: { 
+          email: this.state.email,
+          password: this.state.password
+        } });
+        
+        let token: string = JSON.parse(JSON.stringify(data)).Login.token;
+        this.setState({
+          token: token,
+          errorMessage: ""
+        });
+        let tokenSaved = await this.storeLocally(token);
+        if (tokenSaved) {
+          this.props.navigation.navigate('UserList');
+        }
+        return token;
+        
+      } catch (exception) {
+        if (loading) {
+          this.setState({ errorMessage: "Esperando o servidor responder..." });
+        } else if (error) {
+          let message = JSON.parse(JSON.stringify(error)).graphQLErrors[0].message;
+          this.setState({ errorMessage: message });
+        }
+        return "";
+      }
+    }
   }
 
   render() {
@@ -135,37 +166,8 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                 <Button
                   title="Entrar"
                   color="#9400D3"
-                  onPress={async () => {
-                    
-                    if (!this.formCorrectlyFilled()) {
-                      return;
-                    } else {
-                      try {
-                        // alert(loading + "\r\n" + error + "\r\n" + data + "\r\n" + this.state.email + "\r\n" + this.state.password);
-                        await mutateFunction({ variables: { 
-                          email: this.state.email,
-                          password: this.state.password
-                        } });
-                        
-                        let token: string = JSON.parse(JSON.stringify(data)).Login.token;
-                        this.setState({
-                          token: token,
-                          errorMessage: ""
-                        });
-                        let tokenSaved = await this.storeLocally(token);
-                        if (tokenSaved) {
-                          this.props.navigation.navigate('UserList');
-                        }
-                        
-                      } catch (exception) {
-                        if (loading) {
-                          this.setState({ errorMessage: "Esperando o servidor responder..." });
-                        } else if (error) {
-                          let message = JSON.parse(JSON.stringify(error)).graphQLErrors[0].message;
-                          this.setState({ errorMessage: message });
-                        }
-                      }
-                    }
+                  onPress={() => {
+                    this.login(mutateFunction, loading, error, data);
                   }}
                 />
               </View>
