@@ -128,11 +128,12 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
       <ApolloProvider client={client}>
         <Mutation
           mutation={gql`
-            mutation getLogin {
-              Login(data:{email:"${this.state.email}", password:"${this.state.password}"}) {
+            mutation Login($input: LoginInput!) {
+              Login(data: $input) {
                 token
               }
             }`}
+            variables={{ input: {email: this.state.email, password: this.state.password} }}
         >
           {(mutateFunction: MutationFunction<any, { email: string, password: string }>, {data, error, loading}) => {
             return (
