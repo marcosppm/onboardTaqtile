@@ -19,7 +19,6 @@ import {
   NavigationScreenProp,
   NavigationState
 } from 'react-navigation';
-import ActivityIndicatorToggle from './ActivityIndicatorToggleComponent';
 
 export interface HelloWorldAppProps { 
   navigation?: NavigationScreenProp<NavigationState, NavigationParams>;
@@ -88,7 +87,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
     return tokenSaved;
   }
 
-  private async login(mutateFunction, loading): Promise<boolean>  {
+  private async login(mutateFunction): Promise<boolean>  {
     if (this.formCorrectlyFilled()) {
       try {
         let result = await mutateFunction({ variables: { 
@@ -96,11 +95,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
           password: this.state.password
         } });
 
-        if (loading) {
-          this.setState({ errorMessage: "Esperando o servidor responder..." });
-          return false;
-
-        } else if (result.error) {
+        if (result.error) {
           let message = result.error.graphQLErrors[0].message;
           this.setState({ errorMessage: message });
           return false;
@@ -174,7 +169,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                   title="Entrar"
                   color="#9400D3"
                   onPress={() => {
-                    this.login(mutateFunction, loading);
+                    this.login(mutateFunction);
                   }}
                   disabled={ loading }
                 />
@@ -184,7 +179,14 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                 <Text style={{ fontSize: 15, color: "#FF0000" }}>{this.state.errorMessage}</Text>
               </View>
 
-              <ActivityIndicatorToggle loading={ loading } />
+              <ActivityIndicator 
+                size="large"
+                color="#0000ff"
+                style={{ 
+                    zIndex: 0,
+                    position: 'absolute',
+                    display: (loading ? 'flex' : 'none')
+                }} />
             </View>);
           }}
         </Mutation>
