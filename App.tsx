@@ -182,7 +182,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                 <Text style={{ fontSize: 15, color: "#FF0000" }}>{this.state.errorMessage}</Text>
               </View>
 
-              <ActivityIndicatorToggle />
+              <ActivityIndicatorToggle loading={loading} />
             </View>);
           }}
         </Mutation>

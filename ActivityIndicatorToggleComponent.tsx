@@ -2,11 +2,11 @@ import React from 'react'
 import { Component } from 'react';
 import { ActivityIndicator } from 'react-native';
 
-export interface ActivityIndicatorToggleProps { }
-
-interface ActivityIndicatorToggleState {
-    display?: boolean;
+export interface ActivityIndicatorToggleProps { 
+  loading: boolean;
 }
+
+interface ActivityIndicatorToggleState { }
 
 export default class ActivityIndicatorToggle extends Component<ActivityIndicatorToggleProps, ActivityIndicatorToggleState> {
     constructor(props) {
@@ -15,10 +15,9 @@ export default class ActivityIndicatorToggle extends Component<ActivityIndicator
     }
   
     render() {
-      let loading: boolean = this.state.display;
       let activityIndicator: any;
-  
-      if (loading) {
+
+      if (this.props.loading) {
         activityIndicator = 
             <ActivityIndicator 
                 size="large"
@@ -40,14 +39,6 @@ export default class ActivityIndicatorToggle extends Component<ActivityIndicator
             }} />;
       }
   
-      return ( {activityIndicator} );
-    }
-
-    handleDisplay() {
-      this.setState({display: true});
-    }
-  
-    handleHide() {
-      this.setState({display: false});
+      return ( activityIndicator );
     }
   }
