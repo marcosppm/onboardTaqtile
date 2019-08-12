@@ -175,6 +175,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                   onPress={() => {
                     this.login(mutateFunction);
                   }}
+                  disabled={ loading }
                 />
               </View>
 
