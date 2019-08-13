@@ -179,14 +179,15 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                 <Text style={{ fontSize: 15, color: "#FF0000" }}>{this.state.errorMessage}</Text>
               </View>
 
+            {loading &&
               <ActivityIndicator 
                 size="large"
                 color="#0000ff"
                 style={{ 
                     zIndex: 0,
-                    position: 'absolute',
-                    display: (loading ? 'flex' : 'none')
+                    position: 'absolute'
                 }} />
+            }
             </View>);
           }}
         </Mutation>
