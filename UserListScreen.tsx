@@ -1,9 +1,8 @@
 import React from 'react'
 import { Component } from 'react';
-import { Text, View, Image, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
+import { Text, View, Image, FlatList, StyleSheet, ActivityIndicator, AppRegistry } from 'react-native';
 import { ListItem } from 'react-native-elements';
 
-import { AppRegistry } from 'react-native';
 import { ApolloClient } from 'apollo-client';
 import { ApolloProvider, Query } from 'react-apollo';
 import { InMemoryCache } from 'apollo-cache-inmemory';
@@ -14,7 +13,6 @@ import gql from "graphql-tag";
 import ApolloApp from './App';
 
 import { AsyncStorage } from 'react-native';
-import { element } from 'prop-types';
 
 const httpLink = createHttpLink({
   uri: "https://tq-template-server-sample.herokuapp.com/graphql"
@@ -22,8 +20,6 @@ const httpLink = createHttpLink({
 
 const authLink = setContext(async (_, { headers }) => {
   const token = await AsyncStorage.getItem('@Token:key');
-  console.log("token: " + token);
-
   return {
     headers: {
       ...headers,
@@ -36,24 +32,12 @@ const client = new ApolloClient({
   link: authLink.concat(httpLink),
   cache: new InMemoryCache()
 });
-
 AppRegistry.registerComponent('UserList', () => ApolloApp);
 
 export default class UserList extends Component {
     static navigationOptions = {
         title : 'Usuários Cadastrados'
     }
-
-    list = [
-        {
-          username: 'Amy Farha',
-          email: 'amy.farha@taqtile.com'
-        },
-        {
-          username: 'Chris Jackson',
-          email: 'chris.jackson@taqtile.com'
-        }
-    ];
 
     keyExtractor = (item, index) => index.toString();
 
@@ -86,44 +70,50 @@ export default class UserList extends Component {
         }
       }`;
 
-    private fillUpList(data, loading): JSX.Element {
-        if (!loading) {
-          console.log("dados: " + data.Users.nodes + "\r\nTotal: " + data.Users.nodes.length);
-        }
+    private fillUpList(data, error, loading): JSX.Element {
         return (
-          loading ?
-            <ActivityIndicator 
-              size="large"
-              color="#0000ff"
-              style={{ 
-                  zIndex: 0,
-                  position: 'absolute',
+            loading ?
+                <View style={{
                   flex: 1,
                   justifyContent: 'center',
                   alignItems: 'center'
-              }} />
+                }} >
+                  <ActivityIndicator 
+                    size="large"
+                    color="#0000ff"
+                    style={{ 
+                        zIndex: 0,
+                        position: 'absolute'
+                    }} />
+                </View>
 
-              :
-
-            <FlatList
-              keyExtractor={this.keyExtractor}
-              data={data.Users.nodes}
-              renderItem={this.renderItem}
-            />
+            : error ?
+              <View style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center'
+              }} >
+                <Text style={{ color: "#FF0000", fontSize: 25, fontWeight: 'bold' }}>
+                    Erro interno do servidor
+                </Text>
+              </View>
+            
+            :
+              <FlatList
+                keyExtractor={this.keyExtractor}
+                data={data.Users.nodes}
+                renderItem={this.renderItem}
+              />
         );
     }
 
     render() {
-        console.log("rendering");
-        console.log(this.getUsersQuery);
         return (
           <ApolloProvider client={client}>
             <Query query={ this.getUsersQuery }>
               {
                 ({ data, error, loading }) => {
-                  //console.log("data: " + JSON.stringify(data) + "\r\nerror: " + JSON.stringify(error) + "\r\nloading: " + JSON.stringify(loading));
-                  
-                  return this.fillUpList(data,loading);
+                  return this.fillUpList(data, error, loading);
                 }
               }
             </Query>
