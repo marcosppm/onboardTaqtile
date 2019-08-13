@@ -1,6 +1,6 @@
 import React from 'react'
 import { Component } from 'react';
-import { Text, View, TextInput, Button } from 'react-native';
+import { Text, View, TextInput, Button, ActivityIndicator } from 'react-native';
 
 import { AppRegistry } from 'react-native';
 import { ApolloClient } from 'apollo-client';
@@ -14,7 +14,7 @@ import AppContainer from './index'
 
 import { AsyncStorage } from 'react-native';
 
-import { 
+import {
   NavigationParams, 
   NavigationScreenProp,
   NavigationState
@@ -53,7 +53,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
   }
 
   private formCorrectlyFilled(): boolean {
-    let correctlyFilled = true;
+    let correctlyFilled: boolean = true;
     let regexEmail: RegExp = /([A-Za-z])+@([A-Za-z])+.com/gm;
     let regexOneCharAndOneDigit: RegExp = /(?=.*?[0-9])(?=.*?[A-Za-z]).+/gm;
     if (!this.state.email) {
@@ -95,10 +95,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
           password: this.state.password
         } });
 
-        if (result.loading) {
-          this.setState({ errorMessage: "Esperando o servidor responder..." });
-          return false;
-        } else if (result.error) {
+        if (result.error) {
           let message = result.error.graphQLErrors[0].message;
           this.setState({ errorMessage: message });
           return false;
@@ -135,7 +132,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
             }`}
             variables={{ input: {email: this.state.email, password: this.state.password} }}
         >
-          {(mutateFunction: MutationFunction<{ Login: { token: string } }, { email: string, password: string }>) => {
+          {(mutateFunction: MutationFunction<{ Login: { token: string } }, { email: string, password: string }>, {loading}) => {
             return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
               <View style={{ marginBottom: 15 }}>
@@ -174,12 +171,23 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                   onPress={() => {
                     this.login(mutateFunction);
                   }}
+                  disabled={ loading }
                 />
               </View>
 
               <View style={{ alignItems: 'baseline' }}>
                 <Text style={{ fontSize: 15, color: "#FF0000" }}>{this.state.errorMessage}</Text>
               </View>
+
+            {loading &&
+              <ActivityIndicator 
+                size="large"
+                color="#0000ff"
+                style={{ 
+                    zIndex: 0,
+                    position: 'absolute'
+                }} />
+            }
             </View>);
           }}
         </Mutation>
