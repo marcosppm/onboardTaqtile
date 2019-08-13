@@ -11,7 +11,7 @@ const AppNavigator = createStackNavigator({
     UserList: UserList
   },
   {
-    initialRouteName: 'UserList'
+    initialRouteName: 'Home'
   }
 );
 export default AppContainer = createAppContainer(AppNavigator);
