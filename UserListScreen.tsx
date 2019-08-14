@@ -1,6 +1,6 @@
 import React from 'react'
 import { Component } from 'react';
-import { Text, View, Image, FlatList, StyleSheet, ActivityIndicator, AppRegistry } from 'react-native';
+import { Text, View, FlatList, StyleSheet, ActivityIndicator, AppRegistry, AsyncStorage } from 'react-native';
 import { ListItem } from 'react-native-elements';
 
 import { ApolloClient, ApolloError } from 'apollo-client';
@@ -8,12 +8,10 @@ import { ApolloProvider, Query, QueryResult, OperationVariables } from 'react-ap
 import { InMemoryCache, NormalizedCacheObject } from 'apollo-cache-inmemory';
 import { createHttpLink, HttpLink } from 'apollo-link-http';
 import { setContext } from 'apollo-link-context';
+import { ApolloLink } from 'apollo-link';
 import gql from "graphql-tag";
 
 import ApolloApp from './App';
-
-import { AsyncStorage } from 'react-native';
-import { ApolloLink } from 'apollo-link';
 
 const httpLink: ApolloLink = createHttpLink({
   uri: "https://tq-template-server-sample.herokuapp.com/graphql"
