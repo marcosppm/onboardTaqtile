@@ -3,32 +3,33 @@ import { Component } from 'react';
 import { Text, View, Image, FlatList, StyleSheet, ActivityIndicator, AppRegistry } from 'react-native';
 import { ListItem } from 'react-native-elements';
 
-import { ApolloClient } from 'apollo-client';
-import { ApolloProvider, Query } from 'react-apollo';
-import { InMemoryCache } from 'apollo-cache-inmemory';
-import { createHttpLink } from 'apollo-link-http';
+import { ApolloClient, ApolloError } from 'apollo-client';
+import { ApolloProvider, Query, QueryResult, OperationVariables } from 'react-apollo';
+import { InMemoryCache, NormalizedCacheObject } from 'apollo-cache-inmemory';
+import { createHttpLink, HttpLink } from 'apollo-link-http';
 import { setContext } from 'apollo-link-context';
 import gql from "graphql-tag";
 
 import ApolloApp from './App';
 
 import { AsyncStorage } from 'react-native';
+import { ApolloLink } from 'apollo-link';
 
-const httpLink = createHttpLink({
+const httpLink: ApolloLink = createHttpLink({
   uri: "https://tq-template-server-sample.herokuapp.com/graphql"
 });
 
-const authLink = setContext(async (_, { headers }) => {
-  const token = await AsyncStorage.getItem('@Token:key');
+const authLink: ApolloLink = setContext(async (_, { headers }) => {
+  const token: string = await AsyncStorage.getItem('@Token:key');
   return {
     headers: {
       ...headers,
-      authorization: token ? `${token}` : "",
+      authorization: token
     }
   }
 });
 
-const client = new ApolloClient({
+const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
   link: authLink.concat(httpLink),
   cache: new InMemoryCache()
 });
@@ -39,10 +40,11 @@ export default class UserList extends Component {
         title : 'Usuários Cadastrados'
     }
 
-    keyExtractor = (item, index) => index.toString();
+    keyExtractor = (item, index) => item.id;
 
     renderItem = ({ item }) => (
         <ListItem
+          key={ item.id }
           title={
             <View style={styles.content}>
                 <Text style={styles.text}>{item.name}</Text>
@@ -56,11 +58,12 @@ export default class UserList extends Component {
         />
     )
 
-    getUsersQuery = gql`
+    getUsersQuery: any = gql`
       query Users {
         Users {
           count,
           nodes {
+            id,
             name,
             email
           },
@@ -70,7 +73,7 @@ export default class UserList extends Component {
         }
       }`;
 
-    private fillUpList(data, error, loading): JSX.Element {
+    private fillUpList(data: any, error: ApolloError, loading: boolean): JSX.Element {
         return (
             loading ?
                 <View style={{
@@ -112,7 +115,7 @@ export default class UserList extends Component {
           <ApolloProvider client={client}>
             <Query query={ this.getUsersQuery }>
               {
-                ({ data, error, loading }) => {
+                ({ data, error, loading }: QueryResult<any, OperationVariables>) => {
                   return this.fillUpList(data, error, loading);
                 }
               }
