@@ -1,12 +1,12 @@
 import React from 'react'
 import { Component } from 'react';
-import { Text, View, FlatList, StyleSheet, ActivityIndicator, AppRegistry, AsyncStorage, ListRenderItem } from 'react-native';
+import { Text, View, FlatList, StyleSheet, ActivityIndicator, AsyncStorage, AppRegistry } from 'react-native';
 import { ListItem } from 'react-native-elements';
 
 import { ApolloClient, ApolloError } from 'apollo-client';
 import { ApolloProvider, Query, QueryResult, OperationVariables } from 'react-apollo';
 import { InMemoryCache, NormalizedCacheObject } from 'apollo-cache-inmemory';
-import { createHttpLink, HttpLink } from 'apollo-link-http';
+import { createHttpLink } from 'apollo-link-http';
 import { setContext } from 'apollo-link-context';
 import { ApolloLink } from 'apollo-link';
 import gql from "graphql-tag";
@@ -18,7 +18,7 @@ const httpLink: ApolloLink = createHttpLink({
 });
 
 const authLink: ApolloLink = setContext(async (_, { headers }) => {
-  const token: string = await AsyncStorage.getItem('@Token:key');
+  const token: string | null = await AsyncStorage.getItem('@Token:key');
   return {
     headers: {
       ...headers,
@@ -48,7 +48,18 @@ interface Response {
   Users: Users;
 }
 
-export default class UserList extends Component {
+interface UserListProps { }
+
+interface UserListState {
+  viewableItems: any
+}
+
+export default class UserList extends Component<UserListProps, UserListState> {
+    constructor(props: UserList) {
+      super(props);
+      this.state = { viewableItems: [] };
+    }
+
     static navigationOptions = {
         title : 'Usuários Cadastrados'
     }
