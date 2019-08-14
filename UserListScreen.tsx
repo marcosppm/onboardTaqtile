@@ -38,9 +38,9 @@ export default class UserList extends Component {
         title : 'Usuários Cadastrados'
     }
 
-    keyExtractor = (item, index) => item.id;
+    private keyExtractor = (item) => item.id;
 
-    renderItem = ({ item }) => (
+    private renderItem = ({ item }) => (
         <ListItem
           key={ item.id }
           title={
