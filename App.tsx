@@ -4,11 +4,10 @@ import { Text, View, TextInput, Button, ActivityIndicator } from 'react-native';
 
 import { AppRegistry } from 'react-native';
 import { ApolloClient } from 'apollo-client';
-import { ApolloProvider, MutationFunction, MutationFetchResult } from 'react-apollo';
+import { ApolloProvider, MutationFunction, Mutation } from 'react-apollo';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { createHttpLink } from 'apollo-link-http';
 import gql from "graphql-tag";
-import { Mutation } from 'react-apollo';
 
 import AppContainer from './index'
 
@@ -35,7 +34,7 @@ const client = new ApolloClient({
   cache: new InMemoryCache()
 });
 
-const ApolloApp = AppComponent => (
+export const ApolloApp = AppComponent => (
   <ApolloProvider client={client}>
     <AppContainer />
   </ApolloProvider>
@@ -101,7 +100,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
           return false;
 
         } else if (result.data) {
-          let token: string = result;
+          let token: string = result.data.Login.token;
           this.setState({
             errorMessage: ""
           });
@@ -113,7 +112,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
           return true;
         }
       } catch (error) {
-        let message = error.graphQLErrors[0].message;
+        let message = error.message;
         this.setState({ errorMessage: message });
         return false;
       }
