@@ -25,7 +25,6 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
     }
 
     render() {
-        console.log(this.state)
         return (
             <View style={{ alignSelf: 'center', flex: 1, justifyContent: 'center' }}>
                 <Text style={{ fontSize: 15, marginBottom: 5 }}>Id:</Text>
