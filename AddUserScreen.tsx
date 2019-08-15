@@ -10,14 +10,14 @@ interface AddUserScreenState {
     cpf: string,
     birthdate: Date,
     email: string,
-    cargo: string,
+    position: string,
     errorMessage: string
 }
 
 export default class AddUserScreen extends Component<AddUserScreenProps, AddUserScreenState> {
     constructor(props: AddUserScreenProps) {
         super(props);
-        this.state = { id: 0, name: "", cpf: "", birthdate: null, email: "", cargo: "", errorMessage: "" };
+        this.state = { id: 0, name: "", cpf: "", birthdate: null, email: "", position: "", errorMessage: "" };
     }
     
     static navigationOptions = {
@@ -53,7 +53,7 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
                 <TextInput
                     style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 0 }}
                     autoCapitalize='none'
-                    onEndEditing ={(event) => this.verifyDataNascimento(event.nativeEvent.text)}
+                    onEndEditing ={(event) => this.verifyBirthdate(event.nativeEvent.text)}
                 />
                 <Text style={{ fontSize: 12, marginBottom: 25, fontStyle: 'italic' }}>(Formato: dd/mm/yyyy)</Text>
 
@@ -68,7 +68,7 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
                 <TextInput
                     style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 25 }}
                     autoCapitalize='none'
-                    onEndEditing ={(event) => this.verifyCargo(event.nativeEvent.text)}
+                    onEndEditing ={(event) => this.verifyPosition(event.nativeEvent.text)}
                 />
 
                 <Button
@@ -91,7 +91,7 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
 
     private disabledButton = (): boolean => {
         return (!this.state.id || !this.state.name || !this.state.cpf ||
-                !this.state.birthdate || !this.state.email || !this.state.cargo);
+                !this.state.birthdate || !this.state.email || !this.state.position);
     }
 
     private verifyId(id: string): void {
@@ -121,7 +121,7 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
         }
     }
 
-    private verifyDataNascimento(inputDate: string): void {
+    private verifyBirthdate(inputDate: string): void {
         let regexBirthdate: RegExp = /[0-9]{2}\/[0-9]{2}\/[0-9]{4}/gm;
 
         if (!regexBirthdate.test(inputDate)) {
@@ -155,9 +155,9 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
         }
     }
 
-    private verifyCargo(cargo: string): void {
-        if (cargo) {
-            this.setState({ cargo: cargo, errorMessage: "" });
+    private verifyPosition(position: string): void {
+        if (position) {
+            this.setState({ position: position, errorMessage: "" });
         } else {
             this.setState({ errorMessage: "Escolha um cargo."});
         }
