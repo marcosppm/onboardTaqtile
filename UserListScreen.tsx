@@ -113,6 +113,7 @@ export default class UserList extends Component<UserListProps, UserListState> {
       this.fetchingFromServer = loading;
       if (data && !loading) {
         this.hasNextPage = data.Users.pageInfo.hasNextPage;
+        console.log(this.hasNextPage);
         this.currentListData = this.currentListData.concat(data.Users.nodes);
       }
       return (
@@ -133,7 +134,7 @@ export default class UserList extends Component<UserListProps, UserListState> {
             data={this.currentListData}
             renderItem={this.renderItem}
             ItemSeparatorComponent={() => <View style={styles.separator} />}
-            ListFooterComponent={this.renderFooter.bind(this)}
+            ListFooterComponent={this.renderFooter}
           />
       );
     }
@@ -155,18 +156,21 @@ export default class UserList extends Component<UserListProps, UserListState> {
         );
     }
 
-    renderFooter() {
+    private setOffsetAndRerender = () => {
+      if (this.hasNextPage) {
+        this.setState({offset: this.state.offset + VISIBLE_USERS_LIMIT});
+      } else {
+        alert("Todos os usuários foram carregados.");
+      }
+    }
+
+    private renderFooter = () => {
+      console.log(this.hasNextPage);
       return (
         <View style={styles.footer}>
           <TouchableOpacity
             activeOpacity={0.9}
-            onPress={() => {
-              if (this.hasNextPage) {
-                this.setState({offset: this.state.offset + VISIBLE_USERS_LIMIT});
-              } else {
-                alert("Todos os usuários foram carregados.");
-              }
-            }}
+            onPress={this.setOffsetAndRerender}
             style={styles.loadBtn}>
               {this.fetchingFromServer ? (
                 <ActivityIndicator color="white" style={{ alignContent: 'center' }} />
