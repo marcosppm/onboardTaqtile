@@ -2,7 +2,6 @@ import React from 'react'
 import { Component } from 'react';
 import { Text, View, FlatList, StyleSheet, ActivityIndicator, AsyncStorage, AppRegistry, TouchableOpacity } from 'react-native';
 import { ListItem } from 'react-native-elements';
-import Pagination, {Icon, Dot} from 'react-native-pagination';
 
 import { ApolloClient, ApolloError } from 'apollo-client';
 import { ApolloProvider, Query, QueryResult, OperationVariables } from 'react-apollo';
@@ -19,8 +18,7 @@ const httpLink: ApolloLink = createHttpLink({
 });
 
 const authLink: ApolloLink = setContext(async (_, { headers }) => {
-  const token: string | null = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJJZCI6NTF9LCJpYXQiOjE1NjU4ODA5OTYsImV4cCI6MTU2NTg4NDU5Nn0.nvb5o9O3m58E-cYmmb8ZBMWdOy8Ls0P53ktX2UXx89k";
-                              //= await AsyncStorage.getItem('@Token:key');
+  const token: string | null = await AsyncStorage.getItem('@Token:key');
   return {
     headers: {
       ...headers,
@@ -46,7 +44,6 @@ interface PageInfo {
 }
 
 interface Users {
-  count: number;
   nodes: User[];
   pageInfo: PageInfo;
 }
@@ -101,7 +98,6 @@ export default class UserList extends Component<UserListProps, UserListState> {
     getUsersQuery = gql`
       query Users($limit: Int, $offset: Int) {
         Users(limit: $limit, offset: $offset) {
-          count,
           nodes {
             id,
             name,
@@ -115,32 +111,31 @@ export default class UserList extends Component<UserListProps, UserListState> {
 
     private fillUpList(data: Response, error: ApolloError, loading: boolean): JSX.Element {
       this.fetchingFromServer = loading;
-      if (data.Users && !loading) {
+      if (data && !loading) {
         this.hasNextPage = data.Users.pageInfo.hasNextPage;
         this.currentListData = this.currentListData.concat(data.Users.nodes);
-        console.log(this.currentListData.length);
       }
       return (
-            error ?
-              <View style={{
-                flex: 1,
-                justifyContent: 'center',
-                alignItems: 'center'
-              }} >
-                <Text style={{ color: "#FF0000", fontSize: 25, fontWeight: 'bold' }}>
-                    Erro interno do servidor
-                </Text>
-              </View>
-            
-            :
-              <FlatList
-                keyExtractor={this.keyExtractor}
-                data={this.currentListData}
-                renderItem={this.renderItem}
-                ItemSeparatorComponent={() => <View style={styles.separator} />}
-                ListFooterComponent={this.renderFooter.bind(this)}
-              />
-        );
+        error ?
+          <View style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center'
+          }} >
+            <Text style={{ color: "#FF0000", fontSize: 25, fontWeight: 'bold' }}>
+                Erro interno do servidor
+            </Text>
+          </View>
+        
+        :
+          <FlatList
+            keyExtractor={this.keyExtractor}
+            data={this.currentListData}
+            renderItem={this.renderItem}
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            ListFooterComponent={this.renderFooter.bind(this)}
+          />
+      );
     }
 
     render() {
@@ -152,9 +147,6 @@ export default class UserList extends Component<UserListProps, UserListState> {
             >
               {
                 ({ data, error, loading }: QueryResult<Response, OperationVariables>) => {
-                  console.log("loading: " + loading +  "\r\nerror: " + error +
-                    "\r\noffset: " + this.state.offset + "\r\ndata: " + (data.Users ? JSON.stringify(data.Users.nodes) : undefined) +
-                    "\r\nUsersList: " + JSON.stringify(this.currentListData));
                   return this.fillUpList(data, error, loading);
                 }
               }
