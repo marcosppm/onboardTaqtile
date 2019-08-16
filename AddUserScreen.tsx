@@ -1,8 +1,8 @@
 import React from 'react'
 import { Component } from 'react';
-import { View, Text, TextInput, Button, Picker, AsyncStorage, AppRegistry } from 'react-native';
+import { View, Text, TextInput, Button, Picker, ActivityIndicator, AsyncStorage, AppRegistry } from 'react-native';
 
-import { ApolloClient, ApolloError } from 'apollo-client';
+import { ApolloClient } from 'apollo-client';
 import { ApolloProvider, MutationFunction, Mutation } from 'react-apollo';
 import { InMemoryCache, NormalizedCacheObject } from 'apollo-cache-inmemory';
 import { createHttpLink } from 'apollo-link-http';
@@ -36,7 +36,7 @@ const httpLink: ApolloLink = createHttpLink({
 });
 
 const authLink: ApolloLink = setContext(async (_, { headers }) => {
-  const token: string | null = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJJZCI6NTF9LCJpYXQiOjE1NjU5Nzg2NDQsImV4cCI6MTU2NTk4MjI0NH0.AjeeYlqgXrste9O0BhI3rSq-b9nIrEV6WevIy-WMsic";//await AsyncStorage.getItem('@Token:key');
+  const token: string | null = await AsyncStorage.getItem('@Token:key');
   return {
     headers: {
       ...headers,
@@ -52,6 +52,8 @@ const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
 AppRegistry.registerComponent('AddUserScreen', () => ApolloApp);
 
 const INITIAL_PASSWORD: string = "1234qwer";
+const USER: string = "user";
+const ADMIN: string = "admin";
 
 enum UserRoleType {
   admin,
@@ -133,7 +135,7 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
                     this.verifyRole(itemValue);
                     this.setState({ userRole: itemValue });
                   }}>
-                  <Picker.Item label="" value="Empty" />
+                  <Picker.Item label="" value="empty" />
                   <Picker.Item label="System Administrator" value="admin" />
                   <Picker.Item label="Regular User" value="user" />
                 </Picker>
@@ -150,6 +152,16 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
                 <View style={{ alignItems: 'center' }}>
                   <Text style={{ fontSize: 15, color: "#FF0000", marginTop: 25 }}>{this.state.errorMessage}</Text>
                 </View>
+
+                {loading &&
+                  <ActivityIndicator
+                    size="large"
+                    color="#0000ff"
+                    style={{
+                        zIndex: 0,
+                        position: 'absolute'
+                    }} />
+                }
               </View>
             );
           }
@@ -160,16 +172,13 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
   }
 
   private async handleButtonPress(mutateFunction): Promise<boolean>  {
-    console.log("handle");
     try {
-      let result = await mutateFunction({ variables: {
+      const result = await mutateFunction({ variables: {
         name: this.state.name, email: this.state.email, cpf: this.state.cpf,
         birthDate: this.birthdateYYYYMMDD, password: INITIAL_PASSWORD, role: this.state.userRole
       } });
-      console.log("result: " + JSON.stringify(result));
 
       if (result.error) {
-        console.log("error1: " + JSON.stringify(result.error));
         let message = result.error.graphQLErrors[0].message;
         this.setState({ errorMessage: message });
         return false;
@@ -184,7 +193,6 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
         return true;
       }
     } catch (error) {
-      console.log("error2: " + JSON.stringify(error));
       let message = error.message;
       this.setState({ errorMessage: message });
       return false;
@@ -229,8 +237,6 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
       const birthdate: Date = new Date(birthdateText);
       const dateNow: Date = new Date();
 
-      console.log("birthdate: " + birthdate);
-      console.log("birthdate string:" + birthdateText);
       if (!birthdate.valueOf()) {
         this.setState({ birthdate: null, errorMessage: "Data inválida" });
       } else if (dateNow.getTime() <= birthdate.getTime()) {
@@ -252,10 +258,9 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
   }
 
   private verifyRole(role: string): void {
-    console.log(role);
-    if (role == 'admin') {
+    if (role == ADMIN) {
       this.setState({ userRole: UserRoleType.admin, errorMessage: "" });
-    } else if (role == 'user') {
+    } else if (role == USER) {
       this.setState({ userRole: UserRoleType.user, errorMessage: "" });
     } else {
       this.setState({ userRole: null, errorMessage: "Escolha a função do usuário." });
