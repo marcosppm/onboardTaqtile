@@ -36,7 +36,7 @@ const httpLink: ApolloLink = createHttpLink({
 });
 
 const authLink: ApolloLink = setContext(async (_, { headers }) => {
-  const token: string | null = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJJZCI6NTF9LCJpYXQiOjE1NjU5NzM2NTcsImV4cCI6MTU2NTk3NzI1N30.sRb68piHSdMFUixYHMibsq8zEVlprf5uZQB0ESj0HtY";//await AsyncStorage.getItem('@Token:key');
+  const token: string | null = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZXJJZCI6NTF9LCJpYXQiOjE1NjU5Nzg2NDQsImV4cCI6MTU2NTk4MjI0NH0.AjeeYlqgXrste9O0BhI3rSq-b9nIrEV6WevIy-WMsic";//await AsyncStorage.getItem('@Token:key');
   return {
     headers: {
       ...headers,
