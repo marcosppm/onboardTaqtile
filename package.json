@@ -14,7 +14,6 @@
     "apollo-client": "^2.6.3",
     "apollo-link-context": "^1.0.17",
     "apollo-link-http": "^1.5.15",
-    "dateformat": "^3.0.3",
     "graphql": "^14.4.2",
     "graphql-tag": "^2.10.1",
     "micromatch": "^4.0.2",
