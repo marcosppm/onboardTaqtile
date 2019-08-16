@@ -119,6 +119,20 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
     }
   }
 
+  getUsersQuery = gql`
+      query Users($limit: Int, $offset: Int) {
+        Users(limit: $limit, offset: $offset) {
+          nodes {
+            id,
+            name,
+            email
+          }
+          pageInfo {
+            hasNextPage
+          }
+        }
+      }`;
+
   render() {
     return (
       <ApolloProvider client={client}>
