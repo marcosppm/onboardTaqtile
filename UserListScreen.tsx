@@ -127,7 +127,7 @@ export default class UserList extends Component<UserListProps, UserListState> {
                 Erro interno do servidor
             </Text>
           </View>
-        
+
         :
           <FlatList
             keyExtractor={this.keyExtractor}
