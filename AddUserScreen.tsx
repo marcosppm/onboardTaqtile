@@ -179,7 +179,7 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
       } });
 
       if (result.error) {
-        let message = result.error.graphQLErrors[0].message;
+        const message: string = result.error.graphQLErrors[0].message;
         this.setState({ errorMessage: message });
         return false;
 
@@ -193,7 +193,7 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
         return true;
       }
     } catch (error) {
-      let message = error.message;
+      const message: string = error.message;
       this.setState({ errorMessage: message });
       return false;
     }
@@ -232,7 +232,7 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
       const day: number = parseInt(tokens[0]);
       const month: number = parseInt(tokens[1]);
       const year: number = parseInt(tokens[2]);
-      const birthdateText = year + "-" + month + "-" + day;
+      const birthdateText: string = year + "-" + month + "-" + day;
 
       const birthdate: Date = new Date(birthdateText);
       const dateNow: Date = new Date();
