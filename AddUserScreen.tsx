@@ -1,6 +1,6 @@
 import React from 'react'
 import { Component } from 'react';
-import { View, Text, TextInput, Button, Picker, ActivityIndicator, AsyncStorage, AppRegistry } from 'react-native';
+import { View, Text, TextInput, Button, Picker, ScrollView, StyleSheet, AsyncStorage, AppRegistry } from 'react-native';
 
 import { ApolloClient } from 'apollo-client';
 import { ApolloProvider, MutationFunction, Mutation } from 'react-apollo';
@@ -22,15 +22,6 @@ export interface AddUserScreenProps {
   navigation?: NavigationScreenProp<NavigationState, NavigationParams>;
  }
 
-interface AddUserScreenState {
-  name: string,
-  cpf: string,
-  birthdate: Date,
-  email: string,
-  userRole: UserRoleType,
-  errorMessage: string
-}
-
 const httpLink: ApolloLink = createHttpLink({
   uri: "https://tq-template-server-sample.herokuapp.com/graphql"
 });
@@ -51,7 +42,6 @@ const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
 });
 AppRegistry.registerComponent('AddUserScreen', () => ApolloApp);
 
-const INITIAL_PASSWORD: string = "1234qwer";
 const USER: string = "user";
 const ADMIN: string = "admin";
 
@@ -60,13 +50,29 @@ enum UserRoleType {
   user
 }
 
-export default class AddUserScreen extends Component<AddUserScreenProps, AddUserScreenState> {
-  private birthdateYYYYMMDD: string;
+interface AddUserScreenState {
+  name: string,
+  cpf: string,
+  birthDate: string,
+  email: string,
+  password: string,
+  userRole: UserRoleType,
+  errorMessage: string
+}
 
+interface UserInput {
+  name: string,
+  cpf: string,
+  birthDate: string,
+  email: string,
+  password: string,
+  userRole: UserRoleType
+}
+
+export default class AddUserScreen extends Component<AddUserScreenProps, AddUserScreenState> {
   constructor(props: AddUserScreenProps) {
     super(props);
-    this.state = { name: "", cpf: "", birthdate: null, email: "", userRole: null, errorMessage: "" };
-    this.birthdateYYYYMMDD = "";
+    this.state = { name: "", cpf: "", birthDate: "", email: "", password: "", userRole: null, errorMessage: "" };
   }
 
   static navigationOptions = {
@@ -88,47 +94,53 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
           mutation={this.mutationCreateUser}
           variables={{ input: {
             name: this.state.name, email: this.state.email, cpf: this.state.cpf,
-            birthDate: this.birthdateYYYYMMDD, password: INITIAL_PASSWORD, role: this.state.userRole } }}
+            birthDate: this.state.birthDate, password: this.state.password,
+            role: this.state.userRole } }}
         >
-          {(mutateFunction: MutationFunction<
-              {UserCreate: {id: number}},
-              {name: string, email: string, cpf: string, birthDate: string, password: string, role: UserRoleType}
-            >,
-            { loading }
-           ) => {
+          {(mutateFunction: MutationFunction<{UserCreate: {id: number}}, {input: UserInput}>, { loading }) => {
             return (
-              <View style={{ alignSelf: 'center', flex: 1, justifyContent: 'center' }}>
-                <Text style={{ fontSize: 15, marginBottom: 5 }}>Nome:</Text>
+              <ScrollView>
+                <Text style={styles.fieldTitle}>Nome:</Text>
                 <TextInput
-                  style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 25 }}
+                  style={styles.textInput}
                   autoCapitalize='words'
                   onEndEditing={(event) => this.verifyName(event.nativeEvent.text)}
                 />
 
-                <Text style={{ fontSize: 15, marginBottom: 5 }}>CPF:</Text>
+                <Text style={styles.fieldTitle}>CPF:</Text>
                 <TextInput
-                  style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 0 }}
+                  style={styles.textInputWithTip}
                   autoCapitalize='none'
                   onEndEditing={(event) => this.verifyCPF(event.nativeEvent.text)}
                 />
-                <Text style={{ fontSize: 12, marginBottom: 25, fontStyle: 'italic' }}>(Utilize pontos e traços)</Text>
+                <Text style={styles.textTip}>(Utilize pontos e traços)</Text>
 
-                <Text style={{ fontSize: 15, marginBottom: 5 }}>Data de Nascimento:</Text>
+                <Text style={styles.fieldTitle}>Data de Nascimento:</Text>
                 <TextInput
-                  style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 0 }}
+                  style={styles.textInputWithTip}
                   autoCapitalize='none'
                   onEndEditing={(event) => this.verifyBirthdate(event.nativeEvent.text)}
                 />
-                <Text style={{ fontSize: 12, marginBottom: 25, fontStyle: 'italic' }}>(Formato: dd/mm/yyyy)</Text>
+                <Text style={styles.textTip}>(Formato: dd/mm/yyyy)</Text>
 
-                <Text style={{ fontSize: 15, marginBottom: 5 }}>E-mail:</Text>
+                <Text style={styles.fieldTitle}>E-mail:</Text>
                 <TextInput
-                  style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 25 }}
+                  style={styles.textInput}
                   autoCapitalize='none'
                   onEndEditing={(event) => this.verifyEmail(event.nativeEvent.text)}
                 />
 
-                <Text style={{ fontSize: 15, marginBottom: 5 }}>Função:</Text>
+                <Text style={styles.fieldTitle}>Senha:</Text>
+                <TextInput
+                  style={{ height: 40, width: 200, borderColor: 'gray', borderWidth: 1, marginBottom: 15 }}
+                  autoCompleteType='password'
+                  autoCapitalize='none'
+                  underlineColorAndroid='transparent'
+                  secureTextEntry={true}
+                  onEndEditing={(event) => this.verifyPassword(event.nativeEvent.text)}
+                />
+
+                <Text style={styles.fieldTitle}>Função:</Text>
                 <Picker
                   selectedValue={this.state.userRole}
                   onValueChange={(itemValue) => {
@@ -143,26 +155,14 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
                 <Button
                   title="Cadastrar"
                   color="#9400D3"
-                  onPress={() => {
-                    this.handleButtonPress(mutateFunction);
-                  }}
+                  onPress={() => this.handleButtonPress(mutateFunction)}
                   disabled={this.disabledButton() || loading}
                 />
 
                 <View style={{ alignItems: 'center' }}>
                   <Text style={{ fontSize: 15, color: "#FF0000", marginTop: 25 }}>{this.state.errorMessage}</Text>
                 </View>
-
-                {loading &&
-                  <ActivityIndicator
-                    size="large"
-                    color="#0000ff"
-                    style={{
-                        zIndex: 0,
-                        position: 'absolute'
-                    }} />
-                }
-              </View>
+              </ScrollView>
             );
           }
           }
@@ -171,37 +171,32 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
     );
   }
 
-  private async handleButtonPress(mutateFunction): Promise<boolean>  {
+  private handleButtonPress = async (mutateFunction): Promise<void> => {
     try {
       const result = await mutateFunction({ variables: {
         name: this.state.name, email: this.state.email, cpf: this.state.cpf,
-        birthDate: this.birthdateYYYYMMDD, password: INITIAL_PASSWORD, role: this.state.userRole
+        birthDate: this.state.birthDate, password: this.state.password, role: this.state.userRole
       } });
 
       if (result.error) {
         const message: string = result.error.graphQLErrors[0].message;
         this.setState({ errorMessage: message });
-        return false;
 
       } else if (result.data) {
         let id: number = result.data.UserCreate.id;
-        this.setState({
-          errorMessage: ""
-        });
+        this.setState({ errorMessage: "" });
         alert("Usuário " + id + " criado com sucesso.");
         this.props.navigation.navigate('UserList');
-        return true;
       }
     } catch (error) {
       const message: string = error.message;
       this.setState({ errorMessage: message });
-      return false;
     }
   }
 
   private disabledButton = (): boolean => {
-    return (!this.state.name || !this.state.cpf ||
-      !this.state.birthdate || !this.state.email || !this.state.userRole);
+    return (!this.state.name || !this.state.cpf || !this.state.birthDate ||
+            !this.state.email || !this.state.password || !this.state.userRole);
   }
 
   private verifyName(name: string): void {
@@ -234,16 +229,15 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
       const year: number = parseInt(tokens[2]);
       const birthdateText: string = year + "-" + month + "-" + day;
 
-      const birthdate: Date = new Date(birthdateText);
+      const birthDate: Date = new Date(birthdateText);
       const dateNow: Date = new Date();
 
-      if (!birthdate.valueOf()) {
-        this.setState({ birthdate: null, errorMessage: "Data inválida" });
-      } else if (dateNow.getTime() <= birthdate.getTime()) {
-        this.setState({ birthdate: null, errorMessage: "Data de nascimento deve \nser anterior a hoje." });
+      if (!birthDate.valueOf()) {
+        this.setState({ birthDate: "", errorMessage: "Data inválida" });
+      } else if (dateNow.getTime() <= birthDate.getTime()) {
+        this.setState({ birthDate: "", errorMessage: "Data de nascimento deve \nser anterior a hoje." });
       } else {
-        this.birthdateYYYYMMDD = birthdateText;
-        this.setState({ birthdate: birthdate, errorMessage: "" });
+        this.setState({ birthDate: birthdateText, errorMessage: "" });
       }
     }
   }
@@ -257,6 +251,19 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
     }
   }
 
+  private verifyPassword(password: string): void {
+    const regexOneCharAndOneDigit: RegExp = /(?=.*?[0-9])(?=.*?[A-Za-z]).+/gm;
+    if (!password) {
+      this.setState({ password: "", errorMessage: "Senha obrigatória." });
+    } else if (password.length < 7) {
+      this.setState({ password: "", errorMessage: "A senha deve ter pelo menos 7 caracteres." });
+    } else if (!regexOneCharAndOneDigit.test(password)) {
+      this.setState({ password: "", errorMessage: "A senha deve conter pelo menos um caracter e um dígito" });
+    } else {
+      this.setState({ password: password, errorMessage: "" });
+    }
+  }
+
   private verifyRole(role: string): void {
     if (role == ADMIN) {
       this.setState({ userRole: UserRoleType.admin, errorMessage: "" });
@@ -267,3 +274,29 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
     }
   }
 }
+
+const styles = StyleSheet.create({
+  fieldTitle: {
+    fontSize: 15,
+    marginBottom: 5
+  },
+  textInput: {
+    height: 40,
+    width: 200,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 25
+  },
+  textInputWithTip: {
+    height: 40,
+    width: 200,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 0
+  },
+  textTip: {
+    fontSize: 12,
+    marginBottom: 25,
+    fontStyle: 'italic'
+  }
+});
