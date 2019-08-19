@@ -12,15 +12,9 @@ import gql from "graphql-tag";
 
 import ApolloApp from './App';
 
-import {
-  NavigationParams,
-  NavigationScreenProp,
-  NavigationState
-} from 'react-navigation';
-
 export interface AddUserScreenProps {
-  navigation?: NavigationScreenProp<NavigationState, NavigationParams>;
- }
+  dismissModal: any;
+}
 
 const httpLink: ApolloLink = createHttpLink({
   uri: "https://tq-template-server-sample.herokuapp.com/graphql"
@@ -221,8 +215,7 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
         } else if (result.data) {
           let id: number = result.data.UserCreate.id;
           this.setState({ errorMessage: "" });
-          alert("Usuário " + id + " criado com sucesso.");
-          this.props.navigation.navigate('UserList');
+          this.props.dismissModal(id);
         }
       } catch (error) {
         const message: string = error.message;

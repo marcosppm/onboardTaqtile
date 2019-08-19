@@ -42,10 +42,6 @@ export const ApolloApp = AppComponent => (
 AppRegistry.registerComponent('HelloWorldApp', () => ApolloApp);
 
 export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWorldAppState> {
-  static navigationOptions = {
-    title : 'Login Screen',
-  }
-
   constructor(props: HelloWorldAppProps) {
     super(props);
     this.state = { email: "", password: "", errorMessage: "" };
@@ -86,7 +82,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
     return tokenSaved;
   }
 
-  private async login(mutateFunction): Promise<boolean>  {
+  private async login(mutateFunction): Promise<boolean> {
     if (this.formCorrectlyFilled()) {
       try {
         let result = await mutateFunction({ variables: {
@@ -107,7 +103,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
 
           let tokenSaved = await this.storeLocally(token);
           if (tokenSaved) {
-            this.props.navigation.navigate('AddUser');
+            this.props.navigation.navigate('UserList');
           }
           return true;
         }

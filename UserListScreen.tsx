@@ -1,6 +1,6 @@
 import React from 'react'
 import { Component } from 'react';
-import { Text, View, FlatList, StyleSheet, ActivityIndicator, AsyncStorage, AppRegistry, TouchableOpacity } from 'react-native';
+import { Text, View, FlatList, Modal, StyleSheet, ActivityIndicator, AsyncStorage, AppRegistry, TouchableOpacity } from 'react-native';
 import { ListItem } from 'react-native-elements';
 
 import { ApolloClient, ApolloError } from 'apollo-client';
@@ -12,6 +12,7 @@ import { ApolloLink } from 'apollo-link';
 import gql from "graphql-tag";
 
 import ApolloApp from './App';
+import AddUserScreen from './AddUserScreen';
 
 const httpLink: ApolloLink = createHttpLink({
   uri: "https://tq-template-server-sample.herokuapp.com/graphql"
@@ -55,7 +56,8 @@ interface Response {
 interface UserListProps { }
 
 interface UserListState {
-  offset: number
+  offset: number,
+  modalAddUserVisible: boolean
 }
 
 const VISIBLE_USERS_LIMIT: number = 10;
@@ -64,13 +66,15 @@ export default class UserList extends Component<UserListProps, UserListState> {
     private currentListData: User[];
     private fetchingFromServer: boolean;
     private hasNextPage: boolean;
+    private addedId: number;
 
     constructor(props: UserList) {
       super(props);
-      this.state = { offset: 0 };
+      this.state = { offset: 0, modalAddUserVisible: false };
       this.currentListData = [];
       this.fetchingFromServer = false;
       this.hasNextPage = false;
+      this.addedId = -1;
     }
 
     static navigationOptions = {
@@ -113,7 +117,6 @@ export default class UserList extends Component<UserListProps, UserListState> {
       this.fetchingFromServer = loading;
       if (data && !loading) {
         this.hasNextPage = data.Users.pageInfo.hasNextPage;
-        console.log(this.hasNextPage);
         this.currentListData = this.currentListData.concat(data.Users.nodes);
       }
       return (
@@ -129,6 +132,7 @@ export default class UserList extends Component<UserListProps, UserListState> {
           </View>
 
         :
+        <View>
           <FlatList
             keyExtractor={this.keyExtractor}
             data={this.currentListData}
@@ -136,7 +140,30 @@ export default class UserList extends Component<UserListProps, UserListState> {
             ItemSeparatorComponent={() => <View style={styles.separator} />}
             ListFooterComponent={this.renderFooter}
           />
+          <Modal
+            animationType="slide"
+            transparent={false}
+            visible={this.state.modalAddUserVisible}
+            onDismiss={this.handleModalDismiss}
+          >
+              <AddUserScreen dismissModal={this.dismissModal} />
+          </Modal>
+        </View>
       );
+    }
+
+    private dismissModal = (id) => {
+      this.setState({ modalAddUserVisible: false });
+      this.addedId = id;
+    }
+
+    private handleModalDismiss = () => {
+      if (this.addedId == -1) {
+        alert("Nenhuma alteração realizada.");
+      } else {
+        alert("Usuário " + this.addedId + " criado com sucesso.");
+      }
+      this.addedId = -1;
     }
 
     render() {
@@ -164,6 +191,10 @@ export default class UserList extends Component<UserListProps, UserListState> {
       }
     }
 
+    private openModalAddUser = () => {
+      this.setState({ modalAddUserVisible: true });
+    }
+
     private renderFooter = () => {
       return (
         <View style={styles.footer}>
@@ -176,6 +207,13 @@ export default class UserList extends Component<UserListProps, UserListState> {
               ) : (
                 <Text style={styles.btnText}>Carregar</Text>
               )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={this.openModalAddUser}
+            style={styles.addBtn}>
+            <Text style={styles.btnText}>Cadastrar</Text>
           </TouchableOpacity>
         </View>
       );
@@ -204,6 +242,15 @@ const styles = StyleSheet.create({
     },
     loadBtn: {
       padding: 10,
+      backgroundColor: '#800000',
+      borderRadius: 4,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    addBtn: {
+      padding: 10,
+      marginLeft: 5,
       backgroundColor: '#800000',
       borderRadius: 4,
       flexDirection: 'row',

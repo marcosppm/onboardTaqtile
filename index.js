@@ -13,7 +13,7 @@ const AppNavigator = createStackNavigator({
     AddUser: AddUserScreen
   },
   {
-    initialRouteName: 'AddUser'
+    initialRouteName: 'Home'
   }
 );
 export default AppContainer = createAppContainer(AppNavigator);
