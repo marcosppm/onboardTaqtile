@@ -14,12 +14,12 @@ import AppContainer from './index'
 import { AsyncStorage } from 'react-native';
 
 import {
-  NavigationParams, 
+  NavigationParams,
   NavigationScreenProp,
   NavigationState
 } from 'react-navigation';
 
-export interface HelloWorldAppProps { 
+export interface HelloWorldAppProps {
   navigation?: NavigationScreenProp<NavigationState, NavigationParams>;
 }
 
@@ -42,10 +42,6 @@ export const ApolloApp = AppComponent => (
 AppRegistry.registerComponent('HelloWorldApp', () => ApolloApp);
 
 export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWorldAppState> {
-  static navigationOptions = {
-    title : 'Login Screen',
-  }
-
   constructor(props: HelloWorldAppProps) {
     super(props);
     this.state = { email: "", password: "", errorMessage: "" };
@@ -70,7 +66,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
     } else if (!regexOneCharAndOneDigit.test(this.state.password)) {
       this.setState({ errorMessage: "A senha deve conter pelo menos um caracter e um dígito" });
       correctlyFilled = false;
-    } 
+    }
     return correctlyFilled;
   }
 
@@ -86,10 +82,10 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
     return tokenSaved;
   }
 
-  private async login(mutateFunction): Promise<boolean>  {
+  private async login(mutateFunction): Promise<boolean> {
     if (this.formCorrectlyFilled()) {
       try {
-        let result = await mutateFunction({ variables: { 
+        let result = await mutateFunction({ variables: {
           email: this.state.email,
           password: this.state.password
         } });
@@ -104,7 +100,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
           this.setState({
             errorMessage: ""
           });
-  
+
           let tokenSaved = await this.storeLocally(token);
           if (tokenSaved) {
             this.props.navigation.navigate('UserList');
@@ -118,6 +114,20 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
       }
     }
   }
+
+  getUsersQuery = gql`
+      query Users($limit: Int, $offset: Int) {
+        Users(limit: $limit, offset: $offset) {
+          nodes {
+            id,
+            name,
+            email
+          }
+          pageInfo {
+            hasNextPage
+          }
+        }
+      }`;
 
   render() {
     return (
@@ -179,10 +189,10 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
               </View>
 
             {loading &&
-              <ActivityIndicator 
+              <ActivityIndicator
                 size="large"
                 color="#0000ff"
-                style={{ 
+                style={{
                     zIndex: 0,
                     position: 'absolute'
                 }} />
