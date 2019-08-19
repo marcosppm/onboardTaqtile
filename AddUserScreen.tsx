@@ -42,7 +42,6 @@ const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
 });
 AppRegistry.registerComponent('AddUserScreen', () => ApolloApp);
 
-const EMPTY_ROLE: string = "empty";
 const USER: string = "user";
 const ADMIN: string = "admin";
 
@@ -201,7 +200,6 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
         }
       } catch (error) {
         const message: string = error.message;
-        console.log(JSON.stringify(error));
         this.setState({ errorMessage: message });
       }
     }
@@ -267,7 +265,6 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
     const month: number = parseInt(tokens[1]);
     const year: number = parseInt(tokens[2]);
     const birthDateFormatted: string = year + "-" + month + "-" + day;
-    console.log(birthDateFormatted);
 
     const birthDate: Date = new Date(birthDateFormatted);
     const dateNow: Date = new Date();
