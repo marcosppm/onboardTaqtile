@@ -78,10 +78,13 @@ interface UserInput {
 }
 
 export default class AddUserScreen extends Component<AddUserScreenProps, AddUserScreenState> {
+  private mutateFunction;
+
   constructor(props: AddUserScreenProps) {
     super(props);
     this.state = { name: "", cpf: "", birthDateFormatted: "", birthDate: "", email: "", password: "", selectedRole: "",
                    userRole: null, errorMessage: "" };
+    this.mutateFunction = null;
   }
 
   static navigationOptions = {
@@ -107,20 +110,21 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
             role: this.state.userRole } }}
         >
           {(mutateFunction: MutationFunction<{UserCreate: {id: number}}, {input: UserInput}>, { loading }) => {
+            this.mutateFunction = mutateFunction;
             return (
               <ScrollView>
                 <Text style={styles.fieldTitle}>Nome:</Text>
                 <TextInput
                   style={styles.textInput}
                   autoCapitalize='words'
-                  onChangeText={(text) => this.setState({ name: text })}
+                  onChangeText={this.handleChangeName.bind(this)}
                 />
 
                 <Text style={styles.fieldTitle}>CPF:</Text>
                 <TextInput
                   style={styles.textInputWithTip}
                   autoCapitalize='none'
-                  onChangeText={(text) => this.setState({ cpf: text })}
+                  onChangeText={this.handleChangeCPF.bind(this)}
                 />
                 <Text style={styles.textTip}>(Utilize pontos e traços)</Text>
 
@@ -128,7 +132,7 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
                 <TextInput
                   style={styles.textInputWithTip}
                   autoCapitalize='none'
-                  onChangeText={(text) => this.setState({ birthDate: text })}
+                  onChangeText={this.handleChangeBirthDate.bind(this)}
                 />
                 <Text style={styles.textTip}>(Formato: dd/mm/yyyy)</Text>
 
@@ -136,7 +140,7 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
                 <TextInput
                   style={styles.textInput}
                   autoCapitalize='none'
-                  onChangeText={(text) => this.setState({ email: text })}
+                  onChangeText={this.handleChangeEmail.bind(this)}
                 />
 
                 <Text style={styles.fieldTitle}>Senha:</Text>
@@ -146,16 +150,13 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
                   autoCapitalize='none'
                   underlineColorAndroid='transparent'
                   secureTextEntry={true}
-                  onChangeText={(text) => this.setState({ password: text })}
+                  onChangeText={this.handleChangePassword.bind(this)}
                 />
 
                 <Text style={styles.fieldTitle}>Função:</Text>
                 <Picker
                   selectedValue={this.state.selectedRole}
-                  onValueChange={(itemValue) => {
-                    this.setRole(itemValue);
-                    this.setState({ selectedRole: itemValue });
-                  }}>
+                  onValueChange={this.handleValueChangeRole.bind(this)}>
                   <Picker.Item label="" value="empty" />
                   <Picker.Item label="System Administrator" value="admin" />
                   <Picker.Item label="Regular User" value="user" />
@@ -164,7 +165,7 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
                 <Button
                   title="Cadastrar"
                   color="#9400D3"
-                  onPress={() => this.handleButtonPress(mutateFunction)}
+                  onPress={this.handleButtonPress}
                   disabled={loading}
                 />
 
@@ -180,10 +181,35 @@ export default class AddUserScreen extends Component<AddUserScreenProps, AddUser
     );
   }
 
-  private handleButtonPress = async (mutateFunction): Promise<void> => {
+  private handleChangeName(text: string) {
+    this.setState({ name: text });
+  }
+
+  private handleChangeCPF(text: string) {
+    this.setState({ cpf: text });
+  }
+
+  private handleChangeBirthDate(text: string) {
+    this.setState({ birthDate: text });
+  }
+
+  private handleChangeEmail(text: string) {
+    this.setState({ email: text });
+  }
+
+  private handleChangePassword(text: string) {
+    this.setState({ password: text });
+  }
+
+  private handleValueChangeRole(itemValue: string) {
+    this.setRole(itemValue);
+    this.setState({ selectedRole: itemValue });
+  }
+
+  private handleButtonPress = async (): Promise<void> => {
     if (this.correctlyFilled()) {
       try {
-        const result = await mutateFunction({ variables: {
+        const result = await this.mutateFunction({ variables: {
           name: this.state.name, email: this.state.email, cpf: this.state.cpf,
           birthDate: this.state.birthDateFormatted, password: this.state.password, role: this.state.userRole
         } });
