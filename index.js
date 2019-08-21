@@ -1,19 +1,32 @@
 AppRegistry.registerComponent(appName, () => AppContainer);
 
 import { AppRegistry } from 'react-native';
-import HelloWorldApp from './App';
 import {name as appName} from './app.json';
 import UserList from './UserListScreen';
-import AddUserScreen from './AddUserScreen';
-import { createStackNavigator, createAppContainer, NavigationContainer } from 'react-navigation';
+import { createBottomTabNavigator, createAppContainer, createStackNavigator } from 'react-navigation';
+import HelloWorldApp from './App';
+import UserDetailsScreen from './UserDetailsScreen'
 
-const AppNavigator = createStackNavigator({
-    Home: HelloWorldApp,
+const TabNavigator = createBottomTabNavigator({
     UserList: UserList,
-    AddUser: AddUserScreen
+    UserDetails: UserDetailsScreen
   },
   {
-    initialRouteName: 'Home'
+    initialRouteName: 'UserList',
+    tabBarOptions: {
+      activeTintColor: 'tomato',
+      inactiveTintColor: 'gray',
+    }
   }
 );
+
+const AppNavigator = createStackNavigator({
+  Home: HelloWorldApp,
+  TabNavigator: TabNavigator
+},
+{
+  initialRouteName: 'Home'
+}
+);
+
 export default AppContainer = createAppContainer(AppNavigator);

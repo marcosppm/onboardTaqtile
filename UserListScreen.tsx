@@ -67,6 +67,7 @@ export default class UserList extends Component<UserListProps, UserListState> {
     private fetchingFromServer: boolean;
     private hasNextPage: boolean;
     private addedId: number;
+    private idToShow: number;
 
     constructor(props: UserList) {
       super(props);
@@ -75,6 +76,7 @@ export default class UserList extends Component<UserListProps, UserListState> {
       this.fetchingFromServer = false;
       this.hasNextPage = false;
       this.addedId = -1;
+      this.idToShow = -1;
     }
 
     static navigationOptions = {
@@ -83,21 +85,28 @@ export default class UserList extends Component<UserListProps, UserListState> {
 
     private keyExtractor = (item: User): string => item.id;
 
-    private renderItem = ({item} : {item: User}): JSX.Element => (
-      <ListItem
-        key={ item.id }
-        title={
-          <View style={styles.content}>
-              <Text style={styles.text}>{item.name}</Text>
-          </View>
-        }
-        subtitle={
-          <View style={styles.content}>
-              <Text style={styles.text}>{item.email}</Text>
-          </View>
-        }
-      />
-    );
+    private renderItem = ({item} : {item: User}): JSX.Element => {
+      return (
+        <ListItem
+          key={ item.id }
+          title={
+            <View style={styles.content}>
+                <Text style={styles.text}>{item.name}</Text>
+            </View>
+          }
+          subtitle={
+            <View style={styles.content}>
+                <Text style={styles.text}>{item.email}</Text>
+            </View>
+          }
+          onPress={this.handleOnItemPress.bind(this)}
+        />
+      );
+    };
+
+    private handleOnItemPress = (name, email) => {
+      console.log(name + " " + email);
+    }
 
     getUsersQuery = gql`
       query Users($limit: Int, $offset: Int) {
