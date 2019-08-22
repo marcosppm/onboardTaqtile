@@ -1,11 +1,13 @@
 AppRegistry.registerComponent(appName, () => AppContainer);
 
+import React from 'react'
 import { AppRegistry } from 'react-native';
 import {name as appName} from './app.json';
 import UserList from './UserListScreen';
 import { createBottomTabNavigator, createAppContainer, createStackNavigator } from 'react-navigation';
 import HelloWorldApp from './App';
 import UserDetailsScreen from './UserDetailsScreen'
+import CustomMenu from './OptionsMenu';
 
 const TabNavigator = createBottomTabNavigator({
     UserList: UserList,
@@ -21,8 +23,21 @@ const TabNavigator = createBottomTabNavigator({
 );
 
 const AppNavigator = createStackNavigator({
-  Home: HelloWorldApp,
-  TabNavigator: TabNavigator
+  Home: {
+    screen: HelloWorldApp
+  },
+  TabNavigator: {
+    screen: TabNavigator,
+    navigationOptions: () => ({
+      headerTitle: 'Visualização de Usuário',
+      headerRight: (
+        <CustomMenu
+          setMenuRef="menu"
+          option1Click={() => {alert("Logout")}}
+        />
+      )
+    }),
+  }
 },
 {
   initialRouteName: 'Home'

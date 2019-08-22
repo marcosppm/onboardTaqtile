@@ -18,6 +18,7 @@ import {
   NavigationScreenProp,
   NavigationState
 } from 'react-navigation';
+import CustomMenu from './OptionsMenu';
 
 export interface HelloWorldAppProps {
   navigation?: NavigationScreenProp<NavigationState, NavigationParams>;
