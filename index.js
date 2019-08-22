@@ -1,5 +1,3 @@
-AppRegistry.registerComponent(appName, () => AppContainer);
-
 import React from 'react'
 import { AppRegistry } from 'react-native';
 import {name as appName} from './app.json';
@@ -17,8 +15,9 @@ const TabNavigator = createBottomTabNavigator({
     initialRouteName: 'UserList',
     tabBarOptions: {
       activeTintColor: 'tomato',
-      inactiveTintColor: 'gray',
-    }
+      inactiveTintColor: 'gray'
+    },
+
   }
 );
 
@@ -29,19 +28,19 @@ const AppNavigator = createStackNavigator({
   TabNavigator: {
     screen: TabNavigator,
     navigationOptions: () => ({
-      headerTitle: 'Visualização de Usuário',
       headerRight: (
         <CustomMenu
           setMenuRef="menu"
           option1Click={() => {alert("Logout")}}
         />
       )
-    }),
+    })
   }
-},
-{
-  initialRouteName: 'Home'
-}
+  },
+  {
+    initialRouteName: 'Home'
+  }
 );
 
 export default AppContainer = createAppContainer(AppNavigator);
+AppRegistry.registerComponent(appName, () => AppContainer);

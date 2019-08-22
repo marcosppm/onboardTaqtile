@@ -47,19 +47,6 @@ export default class UserDetailsScreen extends Component<UserDetailsScreenProps,
                    userRole: null, errorMessage: "" };
   }
 
-  // static navigationOptions = ({ navigation }) => {
-  //   return {
-  //     headerTitle: 'Visualização de Usuário',
-  //     headerRight: (
-  //       <CustomMenu
-  //         setMenuRef="menu"
-  //         option1Click={UserDetailsScreen.handleLogout}
-  //       />
-  //     ),
-  //     headerBackTitle: null
-  //   };
-  // }
-
   mutationCreateUser = gql`
     mutation UserCreate($input: UserInput!) {
       UserCreate(data: $input) {

@@ -70,6 +70,13 @@ export default class UserList extends Component<UserListProps, UserListState> {
     private addedId: number;
     private idToShow: number;
 
+    navigationOptions: {
+      tabBarOnPress: ({ navigation, defaultHandler }) => {
+
+        defaultHandler();
+      }
+    }
+
     constructor(props: UserList) {
       super(props);
       this.state = { offset: 0, modalAddUserVisible: false };
@@ -79,19 +86,6 @@ export default class UserList extends Component<UserListProps, UserListState> {
       this.addedId = -1;
       this.idToShow = -1;
     }
-
-    // static navigationOptions = ({ navigation }) => {
-    //   return {
-    //     headerTitle: 'Usuários Cadastrados',
-    //     headerRight: (
-    //       <CustomMenu
-    //         setMenuRef="menu"
-    //         option1Click={() => {}}
-    //       />
-    //     ),
-    //     headerBackTitle: null
-    //   };
-    // }
 
     private keyExtractor = (item: User): string => item.id;
 
