@@ -1,6 +1,6 @@
 import React from 'react'
 import { Component } from 'react';
-import { Text, View, TextInput, Button, ActivityIndicator } from 'react-native';
+import { Text, View, TextInput, Button, Modal, ActivityIndicator } from 'react-native';
 
 import { AppRegistry } from 'react-native';
 import { ApolloClient } from 'apollo-client';
@@ -18,7 +18,6 @@ import {
   NavigationScreenProp,
   NavigationState
 } from 'react-navigation';
-import CustomMenu from './OptionsMenu';
 
 export interface HelloWorldAppProps {
   navigation?: NavigationScreenProp<NavigationState, NavigationParams>;
@@ -43,6 +42,8 @@ export const ApolloApp = AppComponent => (
 AppRegistry.registerComponent('HelloWorldApp', () => ApolloApp);
 
 export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWorldAppState> {
+  static showModal: boolean = false;
+
   constructor(props: HelloWorldAppProps) {
     super(props);
     this.state = { email: "", password: "", errorMessage: "" };
@@ -131,7 +132,7 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
       }`;
 
   render() {
-    return (
+    const view = (
       <ApolloProvider client={client}>
         <Mutation
           mutation={gql`
@@ -171,7 +172,6 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
                   secureTextEntry={true}
                   onChangeText={(inputText) => this.setState({ password: inputText })}
                 />
-
               </View>
 
               <View style={{ marginBottom: 15 }}>
@@ -201,7 +201,21 @@ export default class HelloWorldApp extends Component<HelloWorldAppProps, HelloWo
             </View>);
           }}
         </Mutation>
-      </ApolloProvider>
+    </ApolloProvider>);
+
+    console.log(HelloWorldApp.showModal);
+    return (
+      !HelloWorldApp.showModal
+      ? view
+      : (
+        <Modal
+          animationType="slide"
+          transparent={false}
+          visible={true}
+        >
+          {view}
+        </Modal>
+      )
     );
   }
 }

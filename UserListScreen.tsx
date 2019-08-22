@@ -13,7 +13,6 @@ import gql from "graphql-tag";
 
 import ApolloApp from './App';
 import AddUserScreen from './AddUserScreen';
-import CustomMenu from './OptionsMenu';
 
 const httpLink: ApolloLink = createHttpLink({
   uri: "https://tq-template-server-sample.herokuapp.com/graphql"
@@ -69,13 +68,6 @@ export default class UserList extends Component<UserListProps, UserListState> {
     private hasNextPage: boolean;
     private addedId: number;
     private idToShow: number;
-
-    navigationOptions: {
-      tabBarOnPress: ({ navigation, defaultHandler }) => {
-
-        defaultHandler();
-      }
-    }
 
     constructor(props: UserList) {
       super(props);
