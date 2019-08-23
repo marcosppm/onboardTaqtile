@@ -10,6 +10,12 @@ import { setContext } from 'apollo-link-context';
 import { ApolloLink } from 'apollo-link';
 import gql from "graphql-tag";
 
+import {
+  NavigationParams,
+  NavigationScreenProp,
+  NavigationState
+} from 'react-navigation';
+
 import ApolloApp from './App';
 
 export interface AddUserScreenProps {

@@ -1,12 +1,11 @@
 import React from 'react'
-import { AppRegistry, Modal, Text } from 'react-native';
+import { AppRegistry } from 'react-native';
 import {name as appName} from './app.json';
 import UserList from './UserListScreen';
 import { createBottomTabNavigator, createAppContainer, createStackNavigator } from 'react-navigation';
 import HelloWorldApp from './App';
 import UserDetailsScreen from './UserDetailsScreen'
 import CustomMenu from './OptionsMenu';
-
 
 const TabNavigator = createBottomTabNavigator({
     UserList: {
@@ -39,8 +38,7 @@ const AppNavigator = createStackNavigator({
         <CustomMenu
           setMenuRef="menu"
           option1Click={() => {
-            HelloWorldApp.showModal = true;
-            console.log("HelloWorldApp.showModal = true");
+
           }}
         />
       )
@@ -52,5 +50,19 @@ const AppNavigator = createStackNavigator({
   }
 );
 
-export default AppContainer = createAppContainer(AppNavigator);
+const RootNavigator = createStackNavigator({
+  Home: {
+    screen: AppNavigator
+  },
+  Modal: {
+    screen: HelloWorldApp
+  }
+  },
+  {
+    headerMode: 'none',
+    mode: 'modal'
+  }
+);
+
+export default AppContainer = createAppContainer(RootNavigator);
 AppRegistry.registerComponent(appName, () => AppContainer);

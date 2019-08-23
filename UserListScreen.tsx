@@ -14,6 +14,12 @@ import gql from "graphql-tag";
 import ApolloApp from './App';
 import AddUserScreen from './AddUserScreen';
 
+import {
+  NavigationParams,
+  NavigationScreenProp,
+  NavigationState
+} from 'react-navigation';
+
 const httpLink: ApolloLink = createHttpLink({
   uri: "https://tq-template-server-sample.herokuapp.com/graphql"
 });
@@ -53,7 +59,9 @@ interface Response {
   Users: Users;
 }
 
-interface UserListProps { }
+interface UserListProps {
+  navigation?: NavigationScreenProp<NavigationState, NavigationParams>;
+}
 
 interface UserListState {
   offset: number,
@@ -151,7 +159,7 @@ export default class UserList extends Component<UserListProps, UserListState> {
             visible={this.state.modalAddUserVisible}
             onDismiss={this.handleModalDismiss}
           >
-              <AddUserScreen dismissModal={this.dismissModal} />
+          <AddUserScreen dismissModal={this.dismissModal} />
           </Modal>
         </View>
       );
@@ -200,6 +208,10 @@ export default class UserList extends Component<UserListProps, UserListState> {
       this.setState({ modalAddUserVisible: true });
     }
 
+    private openModalLogin = () => {
+      this.props.navigation.navigate('Modal');
+    }
+
     private renderFooter = () => {
       return (
         <View style={styles.footer}>
@@ -219,6 +231,13 @@ export default class UserList extends Component<UserListProps, UserListState> {
             onPress={this.openModalAddUser}
             style={styles.addBtn}>
             <Text style={styles.btnText}>Cadastrar</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={this.openModalLogin}
+            style={styles.addBtn}>
+            <Text style={styles.btnText}>Logout</Text>
           </TouchableOpacity>
         </View>
       );
