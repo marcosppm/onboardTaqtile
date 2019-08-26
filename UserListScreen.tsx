@@ -77,7 +77,7 @@ export default class UserList extends Component<UserListProps, UserListState> {
     private addedId: number;
     private idToShow: number;
 
-    constructor(props: UserList) {
+    constructor(props: UserListProps) {
       super(props);
       this.state = { offset: 0, modalAddUserVisible: false };
       this.currentListData = [];
